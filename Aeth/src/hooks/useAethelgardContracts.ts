@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAccount } from 'wagmi';
 import { getContract, type Address, type PublicClient, type WalletClient } from 'viem';
-import { HERO_NFT_ABI, STAKING_ABI } from '../constants/abis';
+import { HERO_NFT_ABI, STAKING_ABI, MARKETPLACE_ABI } from '../constants/abis';
 import { CONTRACT_ADDRESSES } from '../constants';
 import { isZeroAddress } from '../lib/utils';
 
@@ -24,7 +24,13 @@ export function useAethelgardContracts() {
     isConfigured: addresses && !isZeroAddress(addresses.STAKING),
   }), [addresses?.STAKING, addresses]);
 
-  return { heroNft, staking, chainId };
+  const marketplace = React.useMemo(() => ({
+    address: (addresses?.MARKETPLACE as Address) as Address,
+    abi: MARKETPLACE_ABI,
+    isConfigured: addresses && addresses.MARKETPLACE && !isZeroAddress(addresses.MARKETPLACE!),
+  }), [addresses?.MARKETPLACE, addresses]);
+
+  return { heroNft, staking, marketplace, chainId };
 }
 
 
