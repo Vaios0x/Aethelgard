@@ -45,7 +45,7 @@ export default function StakingPanel() {
         <Button variant="ghost" onClick={() => { unstakeSelected(selectedIds); show('Tx enviada: des-stakeando héroes…', 'info'); }} isLoading={isPending} aria-label="Des-stakear seleccionados">
           Des-stakear
         </Button>
-        <Button variant="surface" onClick={() => { claim(); show('Tx enviada: reclamando recompensas…', 'info'); }} isLoading={isPending} aria-label="Reclamar recompensas">
+        <Button variant="surface" onClick={() => { claim(selectedIds); show('Tx enviada: reclamando recompensas…', 'info'); }} isLoading={isPending} aria-label="Reclamar recompensas">
           Reclamar
         </Button>
       </div>

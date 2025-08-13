@@ -7,6 +7,8 @@ export const HERO_NFT_ABI = [
   { "type": "function", "name": "ownerOf", "stateMutability": "view", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [{ "type": "address" }] },
   { "type": "function", "name": "evolve", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [] },
   { "type": "function", "name": "mintSelf", "stateMutability": "nonpayable", "inputs": [{ "name": "qty", "type": "uint256" }], "outputs": [] },
+  { "type": "function", "name": "setApprovalForAll", "stateMutability": "nonpayable", "inputs": [{ "name": "operator", "type": "address" }, { "name": "approved", "type": "bool" }], "outputs": [] },
+  { "type": "function", "name": "isApprovedForAll", "stateMutability": "view", "inputs": [{ "name": "owner", "type": "address" }, { "name": "operator", "type": "address" }], "outputs": [{ "type": "bool" }] },
 ] as const;
 
 export const STAKING_ABI = [
@@ -15,6 +17,7 @@ export const STAKING_ABI = [
   { "type": "function", "name": "claimRewards", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenIds", "type": "uint256[]" }], "outputs": [] },
   { "type": "function", "name": "pendingRewards", "stateMutability": "view", "inputs": [{ "name": "user", "type": "address" }], "outputs": [{ "type": "uint256" }] },
   { "type": "function", "name": "isStaked", "stateMutability": "view", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [{ "type": "bool" }] },
+  { "type": "function", "name": "pendingRewardsFor", "stateMutability": "view", "inputs": [{ "name": "user", "type": "address" }, { "name": "tokenIds", "type": "uint256[]" }], "outputs": [{ "type": "uint256" }] },
 ] as const;
 
 // Marketplace mínimo: list/buy/cancel + lectura de listados opcional

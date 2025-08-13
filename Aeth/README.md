@@ -126,6 +126,15 @@ VITE_MOCKS=true
   - Core Testnet2 (1114): RPC `https://rpc.test2.btcs.network`, Explorer `https://scan.test2.btcs.network`.
 - `ensureChain` añade/cambia la red en la wallet si no está presente.
 
+### Direcciones desplegadas (Core Testnet2)
+
+- HeroNFT: `0x5b33069977773557D07023A73468fD16F83ebaea`  
+  Explorer: `https://scan.test2.btcs.network/address/0x5b33069977773557D07023A73468fD16F83ebaea`
+- Staking: `0xE01592cE50FeFF1e9FB65888c66Dd5c6c4C85637`  
+  Explorer: `https://scan.test2.btcs.network/address/0xE01592cE50FeFF1e9FB65888c66Dd5c6c4C85637`
+- Marketplace: `0xAf59e08968446664acE238d3B3415179e5E2E428`  
+  Explorer: `https://scan.test2.btcs.network/address/0xAf59e08968446664acE238d3B3415179e5E2E428`
+
 ### Accesibilidad
 
 - Navegación con teclado completa en navbar/links/botones/drawers.
