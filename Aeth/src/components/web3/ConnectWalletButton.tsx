@@ -51,8 +51,9 @@ export default function ConnectWalletButton() {
         nonce,
       }).prepareMessage();
       const signature = await signMessageAsync({ message });
-      const { accessToken } = await loginSiwe(message, signature);
+      const { accessToken, refreshToken } = await loginSiwe(message, signature);
       setToken(accessToken);
+      try { window.localStorage.setItem('AETH_REFRESH', refreshToken); } catch {}
       setAuthed(true);
       show('Sesión iniciada', 'success');
     } catch (e: any) {

@@ -58,7 +58,27 @@ export async function authorizedFetch(input: string, init: RequestInit = {}): Pr
   const headers = new Headers(init.headers);
   if (token) headers.set('Authorization', `Bearer ${token}`);
   if (!API_URL) throw new Error('Backend no configurado');
-  return apiFetch(input.startsWith('http') ? input : `${API_URL}${input}`, { ...init, headers });
+  let res = await apiFetch(input.startsWith('http') ? input : `${API_URL}${input}`, { ...init, headers });
+  if (res.status === 401 && getToken()) {
+    // intento de refresh token
+    try {
+      const refresh = window.localStorage.getItem('AETH_REFRESH');
+      if (refresh) {
+        const r = await apiFetch(`${API_URL}/auth/refresh`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: refresh }),
+        });
+        if (r.ok) {
+          const data = await r.json();
+          setToken(data.accessToken);
+          headers.set('Authorization', `Bearer ${data.accessToken}`);
+          res = await apiFetch(input.startsWith('http') ? input : `${API_URL}${input}`, { ...init, headers });
+        } else {
+          clearToken();
+        }
+      }
+    } catch {}
+  }
+  return res;
 }
 
 

@@ -14,6 +14,8 @@ app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 
 const NONCES = new Map(); // addr -> { nonce, exp }
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+const ACCESS_TTL = Number(process.env.ACCESS_TTL_SEC || 3600); // 1h
+const REFRESH_TTL_SEC = Number(process.env.REFRESH_TTL_SEC || 60 * 60 * 24 * 30); // 30d
 const CORE_RPC = process.env.CORE_TESTNET2_RPC || 'https://rpc.test2.btcs.network';
 const provider = new ethers.JsonRpcProvider(CORE_RPC);
 
@@ -40,8 +42,9 @@ app.post('/auth/login', async (req, res) => {
     if (!rec || rec.nonce !== fields.data.nonce) return res.status(400).json({ error: 'nonce inválido' });
     if (rec.exp < Date.now()) return res.status(400).json({ error: 'nonce expirado' });
     NONCES.delete(addr); // evitar replay
-    const accessToken = jwt.sign({ sub: addr }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ accessToken, walletAddress: addr });
+    const accessToken = jwt.sign({ sub: addr, typ: 'access' }, JWT_SECRET, { expiresIn: ACCESS_TTL });
+    const refreshToken = jwt.sign({ sub: addr, typ: 'refresh' }, JWT_SECRET, { expiresIn: REFRESH_TTL_SEC });
+    res.json({ accessToken, refreshToken, walletAddress: addr, expiresIn: ACCESS_TTL });
   } catch (e) {
     res.status(400).json({ error: 'verificación SIWE falló' });
   }
@@ -50,6 +53,20 @@ app.post('/auth/login', async (req, res) => {
 // Healthcheck para Render
 app.get('/healthz', (req, res) => {
   res.json({ ok: true });
+});
+
+// Refresh token → nuevo access token
+app.post('/auth/refresh', (req, res) => {
+  try {
+    const { refreshToken } = req.body || {};
+    if (!refreshToken) return res.status(400).json({ error: 'faltan campos' });
+    const payload = jwt.verify(refreshToken, JWT_SECRET);
+    if (payload?.typ !== 'refresh') return res.status(400).json({ error: 'token inválido' });
+    const accessToken = jwt.sign({ sub: payload.sub, typ: 'access' }, JWT_SECRET, { expiresIn: ACCESS_TTL });
+    res.json({ accessToken, expiresIn: ACCESS_TTL });
+  } catch (e) {
+    res.status(401).json({ error: 'refresh inválido' });
+  }
 });
 
 // Middleware simple de auth
@@ -69,8 +86,31 @@ function auth(req, res, next) {
 // Cache en memoria de metadata IPFS -> HTTP
 const METADATA_CACHE = new Map(); // tokenURI -> json
 async function fetchJson(url) {
-  const res = await fetch(url);
-  return await res.json();
+  const gateways = [
+    url,
+    url?.startsWith('http') ? url : null,
+  ].filter(Boolean);
+  // Fallbacks de gateway IPFS
+  if (url?.startsWith('ipfs://')) {
+    const path = url.replace('ipfs://', '');
+    gateways.unshift(
+      `https://ipfs.io/ipfs/${path}`,
+      `https://cloudflare-ipfs.com/ipfs/${path}`,
+      `https://gateway.pinata.cloud/ipfs/${path}`
+    );
+  }
+  let lastErr;
+  for (const g of gateways) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7_000);
+      const res = await fetch(g, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) continue;
+      return await res.json();
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('metadata fetch failed');
 }
 function ipfsToHttp(uri) {
   if (!uri) return uri;
