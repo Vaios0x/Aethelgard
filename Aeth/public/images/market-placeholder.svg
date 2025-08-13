@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#0b0b0b"/>
+  <rect x="40" y="30" width="320" height="180" rx="16" fill="#222"/>
+  <circle cx="200" cy="120" r="50" fill="#4C1D95" opacity=".5"/>
+  <text x="120" y="260" fill="#F3F4F6" font-family="Inter, system-ui" font-size="16">Marketplace Demo</text>
+</svg>
+
+
+
