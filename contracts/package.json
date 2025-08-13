@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf cache artifacts",
     "compile": "hardhat compile",
-    "deploy:testnet2": "hardhat run scripts/deploy.ts --network coreTestnet2"
+    "deploy:testnet2": "hardhat run scripts/deploy.cjs --network coreTestnet2"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

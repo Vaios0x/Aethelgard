@@ -79,7 +79,7 @@ export function useStakingActions() {
     }
   }, [staking.address, staking.abi, writeContract]);
 
-  const claim = React.useCallback(() => {
+  const claim = React.useCallback((ids?: bigint[]) => {
     setError(null);
     if (isMockMode()) {
       setMockIsPending(true);
@@ -93,7 +93,8 @@ export function useStakingActions() {
     }
     if (!staking.isConfigured) { setError('Contrato de Staking no configurado.'); return; }
     try {
-      writeContract({ address: staking.address, abi: staking.abi, functionName: 'claimRewards', args: [] });
+      const tokenIds = Array.isArray(ids) ? ids : [];
+      writeContract({ address: staking.address, abi: staking.abi, functionName: 'claimRewards', args: [tokenIds] });
     } catch (e: any) {
       setError(e?.message ?? 'Error al enviar transacción');
     }
