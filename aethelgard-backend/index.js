@@ -7,6 +7,17 @@ import rateLimit from 'express-rate-limit';
 import { ethers } from 'ethers';
 import * as Sentry from '@sentry/node';
 
+// Logger mínimo
+const LOG_LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
+const LOG_LEVEL = (process.env.LOG_LEVEL || 'info').toLowerCase();
+function log(level, ...args) {
+  if (LOG_LEVELS[level] >= LOG_LEVELS[LOG_LEVEL]) {
+    const ts = new Date().toISOString();
+    // eslint-disable-next-line no-console
+    console[level === 'debug' ? 'log' : level](`[${ts}] [${level.toUpperCase()}]`, ...args);
+  }
+}
+
 const app = express();
 if (process.env.SENTRY_DSN) {
   Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1.0 });
@@ -16,6 +27,14 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:5173').split
 app.use(cors({ origin: CORS_ORIGINS, credentials: false }));
 app.use(bodyParser.json());
 app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
+// Logging de requests básico
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    log('info', `${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`);
+  });
+  next();
+});
 
 const NONCES = new Map(); // addr -> { nonce, exp }
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
@@ -154,7 +173,7 @@ app.get('/users/me/heroes', auth, async (req, res) => {
         try {
           meta = await fetchJson(url);
           METADATA_CACHE.set(url, meta);
-        } catch { meta = {}; }
+        } catch (e) { meta = {}; log('warn', 'metadata fetch failed', e?.message); }
       }
       heroes.push({
         id: id.toString(),
@@ -168,12 +187,13 @@ app.get('/users/me/heroes', auth, async (req, res) => {
     }
     res.json({ heroes });
   } catch (e) {
+    log('error', 'heroes endpoint failed', e?.message);
     res.status(500).json({ error: 'no se pudo cargar héroes' });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`SIWE backend en http://localhost:${PORT}`));
+app.listen(PORT, () => log('info', `Backend listo en :${PORT}`));
 if (process.env.SENTRY_DSN) {
   app.use(Sentry.Handlers.errorHandler());
 }
