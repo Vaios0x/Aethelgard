@@ -27,6 +27,9 @@ export default function MarketplacePage() {
               #{String(h.id)} {h.name}
             </button>
           ))}
+          {(!heroes || heroes.length === 0) && (
+            <span className="text-text-secondary text-sm">Sin héroes disponibles.</span>
+          )}
         </div>
       </Card>
       <ListingGrid filter={filter} />

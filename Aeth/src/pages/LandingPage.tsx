@@ -23,6 +23,9 @@ export default function LandingPage() {
             <ConnectWalletButton />
           </div>
           <div className="mt-4 text-xs text-text-secondary">Modo: {isMockMode() ? 'Simulación' : 'Onchain'}</div>
+          {isMockMode() && (
+            <div className="mt-2 text-xs text-amber-300">Algunas acciones funcionan en modo demo. Configura contratos para modo onchain.</div>
+          )}
         </div>
       </section>
 

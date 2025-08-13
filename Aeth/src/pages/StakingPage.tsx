@@ -7,6 +7,7 @@ export default function StakingPage() {
       <h1 className="heading text-3xl">El Altar de la Ascensión</h1>
       <EssenceTracker />
       <StakingPanel />
+      <div className="text-xs text-text-secondary">Tip: selecciona héroes y usa los botones para Stake/Unstake/Claim. En modo onchain verás los hashes de transacción.</div>
     </div>
   );
 }

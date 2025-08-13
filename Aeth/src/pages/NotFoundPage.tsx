@@ -6,6 +6,7 @@ export default function NotFoundPage() {
     <div className="text-center space-y-4 py-20">
       <h1 className="heading text-4xl">404</h1>
       <p className="text-text-secondary">La ruta que buscas no existe.</p>
+      <p className="text-xs text-text-secondary">Sugerencia: usa el Navbar para navegar o vuelve al inicio.</p>
       <Link to="/">
         <Button variant="surface">Volver al inicio</Button>
       </Link>

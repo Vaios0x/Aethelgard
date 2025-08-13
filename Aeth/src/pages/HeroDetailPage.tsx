@@ -14,7 +14,11 @@ export default function HeroDetailPage() {
   const { hero, isLoading } = useHeroById(id);
 
   if (isLoading) return <div className="text-text-secondary">Cargando héroe…</div>;
-  if (!hero) return <div className="text-text-secondary">Héroe no encontrado.</div>;
+  if (!hero) return (
+    <Card>
+      <div className="text-text-secondary">Héroe no encontrado. Revisa el ID o vuelve al Dashboard.</div>
+    </Card>
+  );
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
