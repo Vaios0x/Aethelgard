@@ -4,19 +4,31 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log('Deploying with:', deployer.address);
 
-  const Hero = await ethers.getContractFactory('MockHeroNFT');
-  const hero = await Hero.deploy();
+  // Deploy HeroNFT con baseURI (puede ser IPFS)
+  const baseURI = process.env.NFT_BASE_URI || 'ipfs://Qm.../';
+  const Hero = await ethers.getContractFactory('HeroNFT');
+  const hero = await Hero.deploy(baseURI);
   await hero.waitForDeployment();
-  console.log('MockHeroNFT:', await hero.getAddress());
+  const heroAddr = await hero.getAddress();
+  console.log('HeroNFT:', heroAddr);
 
   // Mint inicial al deployer
   const mintTx = await hero.mint(deployer.address, 3);
   await mintTx.wait();
 
-  const Staking = await ethers.getContractFactory('MockStaking');
-  const staking = await Staking.deploy(await hero.getAddress());
+  const Staking = await ethers.getContractFactory('Staking');
+  // rewardPerSecond simple para demo: 1e16 wei (0.01 CORE) virtual; ajusta según economía
+  const rewardPerSecond = ethers.parseEther('0.000001');
+  const staking = await Staking.deploy(heroAddr, rewardPerSecond);
   await staking.waitForDeployment();
-  console.log('MockStaking:', await staking.getAddress());
+  const stakingAddr = await staking.getAddress();
+  console.log('Staking:', stakingAddr);
+
+  const Marketplace = await ethers.getContractFactory('Marketplace');
+  const marketplace = await Marketplace.deploy(deployer.address);
+  await marketplace.waitForDeployment();
+  const marketAddr = await marketplace.getAddress();
+  console.log('Marketplace:', marketAddr);
 }
 
 main().catch((e) => {
