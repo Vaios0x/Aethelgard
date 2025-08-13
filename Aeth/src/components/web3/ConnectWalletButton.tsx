@@ -15,7 +15,6 @@ export default function ConnectWalletButton() {
   const { show } = useToast();
   const { openConnectModal } = useConnectModal();
   const [pendingSiweAfterConnect, setPendingSiweAfterConnect] = useState(false);
-  const backendEnabled = Boolean(import.meta.env.VITE_BACKEND_URL);
 
   useEffect(() => {
     const onStorage = () => setAuthed(Boolean(getToken()));
@@ -98,7 +97,7 @@ export default function ConnectWalletButton() {
   return (
     <div className="flex items-center gap-2">
       <ConnectButton chainStatus="icon" showBalance={false} />
-      {backendEnabled && address && !authed && (
+      {address && !authed && (
         <button
           className="btn-ghost px-3 py-2 rounded-md"
           onClick={handleEntrarClick}
@@ -108,13 +107,6 @@ export default function ConnectWalletButton() {
         >
           {isLoading ? 'Entrando…' : 'Entrar'}
         </button>
-      )}
-      {!backendEnabled && (
-        <span
-          className="px-2 py-1 text-xs rounded-md bg-neutral-700/50 border border-neutral-600/60 text-neutral-300"
-          aria-live="polite"
-          title="Configura VITE_BACKEND_URL para habilitar login"
-        >Login desactivado</span>
       )}
       {authed && (
         <>

@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_BACKEND_URL as string | undefined;
+// Permite usar un backend público por defecto si no está definido en env (para demos)
+const API_URL = (import.meta.env.VITE_BACKEND_URL as string | undefined) || 'https://aethelgard-backend.onrender.com';
 
 const TOKEN_KEY = 'AETH_JWT';
 
