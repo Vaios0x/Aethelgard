@@ -9,7 +9,6 @@ import { isMockMode, setMockMode } from '../../lib/utils';
 import { useAccount, useSwitchChain } from 'wagmi';
 import { coreMainnet, coreTestnet2 } from '../../lib/wagmi';
 import { useActivity } from '../../hooks/useActivity';
-import Tooltip from '../ui/Tooltip';
 
 function Navbar() {
   const { items } = useActivity();
@@ -61,11 +60,6 @@ function Navbar() {
           </li>
         </ul>
         <div className="flex items-center gap-2">
-          <Tooltip content={chain ? `Red: ${chain.name} (${chain.id})` : 'Sin red'}>
-            <span className="px-2 py-1 text-xs rounded-md bg-neutral-700/50 border border-neutral-600/60 text-neutral-300" aria-live="polite">
-              {chain ? (chain.id === coreMainnet.id ? 'Core Mainnet' : chain.id === coreTestnet2.id ? 'Core Testnet2' : `ID ${chain.id}`) : 'No Network'}
-            </span>
-          </Tooltip>
           <Link to="/dashboard" className="relative px-3 py-2 rounded-md hover:bg-white/5" aria-label="Actividad reciente" role="button" tabIndex={0}>
             <span>Actividad</span>
             {items.length > 0 && (
