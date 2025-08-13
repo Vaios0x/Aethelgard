@@ -23,8 +23,11 @@ if (process.env.SENTRY_DSN) {
   Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1.0 });
   app.use(Sentry.Handlers.requestHandler());
 }
-const CORS_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:5173').split(',');
-app.use(cors({ origin: CORS_ORIGINS, credentials: false }));
+const CORS_ORIGINS = (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+const corsOptions = CORS_ORIGINS.length ? { origin: CORS_ORIGINS, credentials: false } : { origin: true, credentials: false };
+app.use(cors(corsOptions));
+// Preflight universal
+app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
 app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 // Logging de requests básico
