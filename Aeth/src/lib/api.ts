@@ -1,5 +1,7 @@
 // Permite usar un backend público por defecto si no está definido en env (para demos)
-const API_URL = (import.meta.env.VITE_BACKEND_URL as string | undefined) || 'https://aethelgard-backend.onrender.com';
+const RAW_API_URL = (import.meta.env.VITE_BACKEND_URL as string | undefined) || 'https://aethelgard-backend.onrender.com';
+// Normaliza para evitar "//auth/..." si el usuario pone slash final
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
 
 const TOKEN_KEY = 'AETH_JWT';
 
