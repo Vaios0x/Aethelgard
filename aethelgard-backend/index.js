@@ -5,8 +5,13 @@ import { SiweMessage } from 'siwe';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { ethers } from 'ethers';
+import * as Sentry from '@sentry/node';
 
 const app = express();
+if (process.env.SENTRY_DSN) {
+  Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1.0 });
+  app.use(Sentry.Handlers.requestHandler());
+}
 const CORS_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:5173').split(',');
 app.use(cors({ origin: CORS_ORIGINS, credentials: false }));
 app.use(bodyParser.json());
@@ -169,5 +174,8 @@ app.get('/users/me/heroes', auth, async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`SIWE backend en http://localhost:${PORT}`));
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 
 
