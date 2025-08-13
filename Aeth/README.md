@@ -135,6 +135,10 @@ VITE_MOCKS=true
 - Marketplace: `0xAf59e08968446664acE238d3B3415179e5E2E428`  
   Explorer: `https://scan.test2.btcs.network/address/0xAf59e08968446664acE238d3B3415179e5E2E428`
 
+### Live Demo
+
+- Frontend: https://aethelgard-one.vercel.app/
+
 ### Accesibilidad
 
 - Navegación con teclado completa en navbar/links/botones/drawers.
