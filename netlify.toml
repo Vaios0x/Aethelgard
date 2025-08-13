@@ -1,0 +1,11 @@
+[build]
+  base = "Aeth"
+  publish = "Aeth/dist"
+  command = "npm ci && npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+

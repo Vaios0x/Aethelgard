@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: aethelgard-backend
+    env: docker
+    plan: free
+    dockerCommand: "node index.js"
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: CORE_TESTNET2_RPC
+        sync: false
+      - key: HERO_NFT_ADDR
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://your-frontend.vercel.app
+
+
