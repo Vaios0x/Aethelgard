@@ -13,6 +13,7 @@ import Tooltip from '../ui/Tooltip';
 
 function Navbar() {
   const { items } = useActivity();
+  const { chain } = useAccount();
   return (
     <header className="sticky top-0 z-50 bg-background/70 backdrop-blur border-b border-white/5">
       <nav className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between" aria-label="Principal">
