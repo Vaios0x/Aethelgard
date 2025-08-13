@@ -47,6 +47,11 @@ app.post('/auth/login', async (req, res) => {
   }
 });
 
+// Healthcheck para Render
+app.get('/healthz', (req, res) => {
+  res.json({ ok: true });
+});
+
 // Middleware simple de auth
 function auth(req, res, next) {
   const authz = req.headers.authorization || '';
