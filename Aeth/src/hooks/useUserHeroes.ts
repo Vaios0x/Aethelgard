@@ -4,7 +4,6 @@ import { useAccount, usePublicClient } from 'wagmi';
 import { useAethelgardContracts } from './useAethelgardContracts';
 import { isMockMode } from '../lib/utils';
 import { authorizedFetch, getToken } from '../lib/api';
-import { authorizedFetch } from '../lib/api';
 import type { HeroData } from '../types/hero';
 
 export function useUserHeroes() {

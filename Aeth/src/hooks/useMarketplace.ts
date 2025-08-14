@@ -66,10 +66,10 @@ export function useMarketplace() {
     }
     try {
       // Asegurar aprobación global
-      const approved = await publicClient!.readContract({ address: heroNft.address, abi: HERO_NFT_ABI as any, functionName: 'isApprovedForAll', args: [address!, marketplace.address] }) as boolean;
+      const approved = await publicClient!.readContract({ address: heroNft.address, abi: heroNft.abi as any, functionName: 'isApprovedForAll', args: [address!, marketplace.address] }) as boolean;
       if (!approved) {
-        const gasApprove = await publicClient!.estimateContractGas({ address: heroNft.address, abi: HERO_NFT_ABI as any, functionName: 'setApprovalForAll', args: [marketplace.address, true], account: address as `0x${string}` });
-        const h = await walletClient!.writeContract({ address: heroNft.address, abi: HERO_NFT_ABI as any, functionName: 'setApprovalForAll', args: [marketplace.address, true], gas: gasApprove });
+        const gasApprove = await publicClient!.estimateContractGas({ address: heroNft.address, abi: heroNft.abi as any, functionName: 'setApprovalForAll', args: [marketplace.address, true], account: address as `0x${string}` });
+        const h = await walletClient!.writeContract({ address: heroNft.address, abi: heroNft.abi as any, functionName: 'setApprovalForAll', args: [marketplace.address, true], gas: gasApprove });
         show(`Aprobando NFT… (${h.slice(0,10)}…)`, 'info');
         await publicClient!.waitForTransactionReceipt({ hash: h });
       }

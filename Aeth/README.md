@@ -1,4 +1,4 @@
-### Aethelgard – Frontend
+### Aethelgard – Frontend (English README available)
 
 El Command Center para tus Héroes NFT en Core: evoluciona, stakea y comercia con una UX moderna, accesible y lista para producción.
 
@@ -12,6 +12,8 @@ El Command Center para tus Héroes NFT en Core: evoluciona, stakea y comercia co
 ![Ethers v6](https://img.shields.io/badge/Ethers-253858?logo=ethereum&logoColor=fff)
 ![Core DAO](https://img.shields.io/badge/Core%20DAO-FF8A00?logo=bitcoin&logoColor=000)
 ![SIWE](https://img.shields.io/badge/SIWE-1C1C1C?logo=ethereum&logoColor=fff)
+
+> For the complete README in English (including Submission & Network Policy), see the root `README.md` of this repository.
 
 ### Pitch
 
@@ -159,6 +161,16 @@ VITE_MOCKS=true
 - Contratos reales para marketplace y staking (actualizar ABIs/addresses).
 - Paginación onchain y metadatos cacheados en backend.
 - Métricas UX (tiempos de confirmación, reintentos, toasts enriquecidos).
+
+### Submission & Network Policy (Testnet2)
+
+This project is currently deployed on Core Testnet2 due to regulatory constraints in our jurisdiction. Per the Buildathon rules, if selected as a finalist or winner, we commit to deploying to Core Mainnet within two (2) weeks after winners are announced.
+
+- Testnet2 deployments are live (contracts, backend on Render, frontend on Vercel/Netlify).
+- Set `VITE_BACKEND_URL` in the frontend to the Render base URL.
+- Core Testnet2 Scan links are provided for all contracts.
+
+Nota (ES): Por regulación local, se presenta en Testnet2. En caso de ser finalistas/ganadores, migraremos a Mainnet en ≤ 2 semanas tras el anuncio.
 
 ### Licencia
 

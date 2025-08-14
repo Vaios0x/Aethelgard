@@ -45,7 +45,10 @@ export async function getNonce(address: string): Promise<string> {
   return data.nonce as string;
 }
 
-export async function loginSiwe(message: string, signature: string): Promise<{ accessToken: string; walletAddress: string }>{
+export async function loginSiwe(
+  message: string,
+  signature: string
+): Promise<{ accessToken: string; walletAddress: string; refreshToken: string; expiresIn?: number }>{
   if (!API_URL) throw new Error('Backend no configurado');
   const res = await apiFetch(`${API_URL}/auth/login`, {
     method: 'POST',
