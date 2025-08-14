@@ -195,6 +195,59 @@ app.get('/users/me/heroes', auth, async (req, res) => {
   }
 });
 
+// Marketplace: lista activa a partir de eventos + lectura del mapping público
+app.get('/market/listings', async (req, res) => {
+  try {
+    const MARKET_ADDR = process.env.MARKETPLACE_ADDR;
+    const HERO_ADDR = process.env.HERO_NFT_ADDR;
+    if (!MARKET_ADDR) return res.status(500).json({ error: 'MARKETPLACE_ADDR no configurado' });
+    // ABI mínimo para eventos y getter de mapping
+    const abi = [
+      'event Listed(address indexed seller,address indexed nft,uint256 indexed tokenId,uint256 price)',
+      'event Bought(address indexed buyer,address indexed nft,uint256 indexed tokenId,uint256 price)',
+      'event Canceled(address indexed seller,address indexed nft,uint256 indexed tokenId)',
+      'function listings(bytes32) view returns (address seller,address nft,uint256 tokenId,uint256 price,bool active)'
+    ];
+    const market = new ethers.Contract(MARKET_ADDR, abi, provider);
+    const iface = new ethers.Interface(abi);
+    const fromBlock = Number(process.env.MARKET_FROM_BLOCK || 0);
+    const toBlock = 'latest';
+    const listedLogs = await provider.getLogs({
+      address: MARKET_ADDR,
+      fromBlock,
+      toBlock,
+      topics: [iface.getEvent('Listed').topicHash],
+    });
+    // Para cada (nft, tokenId) listado, verifica estado actual en mapping
+    const results = [];
+    for (const log of listedLogs) {
+      try {
+        const parsed = iface.parseLog(log);
+        const seller = parsed.args.seller;
+        const nft = parsed.args.nft;
+        const tokenId = parsed.args.tokenId;
+        const key = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['address','uint256'], [nft, tokenId]));
+        const row = await market.listings(key);
+        if (row.active) {
+          results.push({
+            id: `L-${nft}-${tokenId.toString()}`,
+            nft,
+            tokenId: tokenId.toString(),
+            priceWei: row.price.toString(),
+            priceCore: Number(ethers.formatEther(row.price)),
+            seller: row.seller,
+            isOwn: false,
+          });
+        }
+      } catch {}
+    }
+    res.json({ listings: results });
+  } catch (e) {
+    log('error', 'listings endpoint failed', e?.message);
+    res.status(500).json({ error: 'no se pudo cargar listados' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => log('info', `Backend listo en :${PORT}`));
 if (process.env.SENTRY_DSN) {

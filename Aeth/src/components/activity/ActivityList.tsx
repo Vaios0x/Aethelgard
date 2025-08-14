@@ -49,6 +49,13 @@ export default function ActivityList() {
                 <div>
                   <div className="heading text-sm">{it.summary}</div>
                   {it.details && <div className="text-xs text-text-secondary">{it.details}</div>}
+                  {it.details?.includes('hash:') && (
+                    <a
+                      className="text-xs text-primary underline"
+                      href={`https://scan.test2.btcs.network/tx/${(it.details.split('hash:')[1]||'').trim()}`}
+                      target="_blank" rel="noreferrer"
+                    >View on CoreScan</a>
+                  )}
                 </div>
                 <div className="text-xs text-text-secondary">{new Date(it.timestamp).toLocaleString('es-MX')}</div>
               </div>

@@ -7,6 +7,7 @@ import { isMockMode } from '../lib/utils';
 import { pushActivity } from './useActivity';
 import { useAethelgardContracts } from './useAethelgardContracts';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { authorizedFetch } from '../lib/api';
 
 export function useMarketplace() {
   const [, force] = React.useReducer((x: number) => x + 1, 0);
@@ -18,13 +19,44 @@ export function useMarketplace() {
 
   React.useEffect(() => mockStore.subscribe(force), []);
 
-  const listings = React.useMemo<ListingItem[]>(() => mockStore.getListings(), [force]);
+  const [listingsState, setListings] = React.useState<ListingItem[]>([]);
+  const listings = listingsState;
+
+  // Cargar listados onchain desde backend si no estamos en mock y hay marketplace configurado
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (isMockMode() || !marketplace.isConfigured) {
+        setListings(mockStore.getListings());
+        return;
+      }
+      try {
+        const res = await authorizedFetch('/market/listings');
+        if (!res.ok) throw new Error('fetch listings failed');
+        const json = await res.json();
+        const items: ListingItem[] = (json.listings || []).map((l: any) => ({
+          id: l.id,
+          tokenId: BigInt(l.tokenId),
+          name: `Hero #${l.tokenId}`,
+          priceCore: Number(l.priceCore),
+          seller: l.seller,
+          isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
+        }));
+        if (mounted) setListings(items);
+      } catch {
+        // fallback a mocks si falla
+        setListings(mockStore.getListings());
+      }
+    })();
+    return () => { mounted = false; };
+  }, [address, marketplace.isConfigured, force]);
 
   const buy = React.useCallback(async (id: string) => {
     if (isMockMode() || !marketplace.isConfigured) {
       mockStore.removeListing(id);
       show('Compra simulada completada.', 'success');
       pushActivity('buy', `Compra de listado ${id}`);
+      setListings(mockStore.getListings());
       return;
     }
     const listing = mockStore.getListings().find(l => l.id === id);
@@ -51,6 +83,7 @@ export function useMarketplace() {
       await publicClient!.waitForTransactionReceipt({ hash });
       show('Compra confirmada', 'success');
       mockStore.removeListing(id);
+      setListings((prev) => prev.filter((x) => x.id !== id));
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Compra fallida', 'error');
     }
@@ -62,6 +95,7 @@ export function useMarketplace() {
       mockStore.addListing({ ...item, id });
       show('Listado simulado publicado.', 'success');
       pushActivity('list', `Listado de #${String(item.tokenId)} por ${item.priceCore} CORE`);
+      setListings(mockStore.getListings());
       return;
     }
     try {
@@ -93,6 +127,7 @@ export function useMarketplace() {
       show('Listado confirmado', 'success');
       const id = Math.random().toString(36).slice(2);
       mockStore.addListing({ ...item, id });
+      setListings(mockStore.getListings());
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Listado fallido', 'error');
     }
@@ -105,6 +140,7 @@ export function useMarketplace() {
       mockStore.removeListing(id);
       show('Listado simulado retirado.', 'success');
       pushActivity('unlist', `Retiro de listado ${id}`);
+      setListings(mockStore.getListings());
       return;
     }
     try {
@@ -115,6 +151,7 @@ export function useMarketplace() {
       await publicClient!.waitForTransactionReceipt({ hash });
       show('Retiro confirmado', 'success');
       mockStore.removeListing(id);
+      setListings(mockStore.getListings());
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Retiro fallido', 'error');
     }

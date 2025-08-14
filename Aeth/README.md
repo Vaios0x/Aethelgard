@@ -154,6 +154,7 @@ VITE_MOCKS=true
   - `POST /auth/login` — valida firma y devuelve `{ accessToken, walletAddress }`.
   - `GET /users/me` — perfil del usuario autenticado.
   - `GET /users/me/heroes` — inventario de héroes (opcional, acelera la carga).
+  - `GET /market/listings` — listados activos del Marketplace (Testnet2) indexados desde eventos.
 - El token se guarda con clave `AETH_JWT` en `localStorage`.
 
 ### Roadmap corto

@@ -82,7 +82,7 @@ VITE_MOCKS=false
 
 ### Backend (Quick Overview)
 
-- Endpoints: `/auth/nonce/:address`, `/auth/login`, `/auth/refresh`, `/users/me`, `/users/me/heroes`
+- Endpoints: `/auth/nonce/:address`, `/auth/login`, `/auth/refresh`, `/users/me`, `/users/me/heroes`, `/market/listings`
 - Security: rate‑limits, CORS, JWT, optional Sentry
 - Deployed on Render; set `CORS_ORIGINS` to your frontend origin and `JWT_SECRET`
 
