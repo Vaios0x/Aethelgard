@@ -26,16 +26,20 @@ export default function StakingPanel() {
         <div className="text-red-400 text-sm" role="alert">{error}</div>
       )}
       {isSuccess && (<div className="text-emerald-400 text-sm" role="status">Transacción confirmada.</div>)}
-      {isMockMode() && (
+      {heroes?.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {heroes?.map((h) => (
-            <button
-              key={String(h.id)}
-              className={`px-3 py-2 rounded-md border ${selectedIds.includes(h.id) ? 'border-primary bg-white/10' : 'border-white/10 hover:bg-white/5'}`}
-              onClick={() => setSelectedIds((prev) => prev.includes(h.id) ? prev.filter(i => i!==h.id) : [...prev, h.id])}
-              aria-label={`Seleccionar héroe ${h.name}`}
-            >#{String(h.id)} · {h.name}</button>
-          ))}
+          {heroes.map((h) => {
+            const isSelected = selectedIds.includes(h.id);
+            return (
+              <button
+                key={String(h.id)}
+                className={`px-3 py-2 rounded-md border ${isSelected ? 'border-primary bg-white/10' : 'border-white/10 hover:bg-white/5'}`}
+                onClick={() => setSelectedIds((prev) => prev.includes(h.id) ? prev.filter(i => i!==h.id) : [...prev, h.id])}
+                aria-label={`Seleccionar héroe ${h.name}`}
+                title={h.staked ? 'En staking' : 'Disponible'}
+              >#{String(h.id)} · {h.name} {h.staked ? '•' : ''}</button>
+            );
+          })}
         </div>
       )}
       <div className="flex gap-3">

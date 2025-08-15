@@ -148,12 +148,11 @@ export default function MainLayout() {
     <div className="min-h-full flex flex-col">
       <Navbar />
       {/* Aviso deshabilitado temporalmente */}
-      {chain && ![coreMainnet.id, coreTestnet2.id].includes(chain.id) && (
+      {chain && chain.id !== coreTestnet2.id && (
         <div className="bg-purple-900/30 border-b border-purple-700/30 text-text-primary">
           <div className="mx-auto max-w-7xl px-4 py-2 text-sm flex items-center gap-3">
-            Red actual no soportada: {chain.name}. Cambia a Core.
+            Red actual no soportada: {chain.name}. Cambia a Core Testnet2.
             <button className="btn-ghost px-3 py-1" onClick={() => switchChain({ chainId: coreTestnet2.id })}>Core Testnet2</button>
-            <button className="btn-ghost px-3 py-1" onClick={() => switchChain({ chainId: coreMainnet.id })}>Core Mainnet</button>
             {switchError && <span className="text-amber-300 text-xs">No se pudo cambiar la red. Abre tu wallet y acepta.</span>}
           </div>
         </div>

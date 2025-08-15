@@ -24,7 +24,6 @@ export default function HeroDetailPage() {
     <div className="grid gap-6 md:grid-cols-3">
       <Card className="p-0 overflow-hidden md:col-span-2">
         {hero.image && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={hero.image} alt={`Héroe ${hero.name}`} className="w-full object-cover" />
         )}
         <div className="p-4 space-y-2">

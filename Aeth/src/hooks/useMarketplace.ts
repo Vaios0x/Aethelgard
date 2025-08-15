@@ -22,34 +22,36 @@ export function useMarketplace() {
   const [listingsState, setListings] = React.useState<ListingItem[]>([]);
   const listings = listingsState;
 
-  // Cargar listados onchain desde backend si no estamos en mock y hay marketplace configurado
+  const loadListings = React.useCallback(async () => {
+    if (isMockMode() || !marketplace.isConfigured) {
+      setListings(mockStore.getListings());
+      return;
+    }
+    try {
+      const res = await authorizedFetch('/market/listings');
+      if (!res.ok) throw new Error('fetch listings failed');
+      const json = await res.json();
+      const items: ListingItem[] = (json.listings || []).map((l: any) => ({
+        id: l.id,
+        tokenId: BigInt(l.tokenId),
+        name: `Hero #${l.tokenId}`,
+        priceCore: Number(l.priceCore),
+        seller: l.seller,
+        isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
+      }));
+      setListings(items);
+    } catch {
+      // fallback a mocks si falla backend
+      setListings(mockStore.getListings());
+    }
+  }, [address, marketplace.isConfigured]);
+
+  // Cargar listados iniciales y ante cambios relevantes
   React.useEffect(() => {
     let mounted = true;
-    (async () => {
-      if (isMockMode() || !marketplace.isConfigured) {
-        setListings(mockStore.getListings());
-        return;
-      }
-      try {
-        const res = await authorizedFetch('/market/listings');
-        if (!res.ok) throw new Error('fetch listings failed');
-        const json = await res.json();
-        const items: ListingItem[] = (json.listings || []).map((l: any) => ({
-          id: l.id,
-          tokenId: BigInt(l.tokenId),
-          name: `Hero #${l.tokenId}`,
-          priceCore: Number(l.priceCore),
-          seller: l.seller,
-          isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
-        }));
-        if (mounted) setListings(items);
-      } catch {
-        // fallback a mocks si falla
-        setListings(mockStore.getListings());
-      }
-    })();
+    (async () => { if (mounted) await loadListings(); })();
     return () => { mounted = false; };
-  }, [address, marketplace.isConfigured, force]);
+  }, [loadListings, force]);
 
   const buy = React.useCallback(async (id: string) => {
     if (isMockMode() || !marketplace.isConfigured) {
@@ -59,7 +61,7 @@ export function useMarketplace() {
       setListings(mockStore.getListings());
       return;
     }
-    const listing = mockStore.getListings().find(l => l.id === id);
+    const listing = listings.find(l => l.id === id);
     if (!listing) return;
     try {
       const gas = await publicClient!.estimateContractGas({
@@ -82,12 +84,11 @@ export function useMarketplace() {
       pushActivity('buy', `Compra #${String(listing.tokenId)}`, `hash: ${hash}`);
       await publicClient!.waitForTransactionReceipt({ hash });
       show('Compra confirmada', 'success');
-      mockStore.removeListing(id);
-      setListings((prev) => prev.filter((x) => x.id !== id));
+      await loadListings();
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Compra fallida', 'error');
     }
-  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show]);
+  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show, listings, loadListings]);
 
   const list = React.useCallback(async (item: Omit<ListingItem, 'id'>) => {
     if (isMockMode() || !marketplace.isConfigured) {
@@ -125,16 +126,14 @@ export function useMarketplace() {
       pushActivity('list', `Listado #${String(item.tokenId)} por ${item.priceCore} CORE`, `hash: ${hash}`);
       await publicClient!.waitForTransactionReceipt({ hash });
       show('Listado confirmado', 'success');
-      const id = Math.random().toString(36).slice(2);
-      mockStore.addListing({ ...item, id });
-      setListings(mockStore.getListings());
+      await loadListings();
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Listado fallido', 'error');
     }
-  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show]);
+  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show, loadListings]);
 
   const unlist = React.useCallback(async (id: string) => {
-    const listing = mockStore.getListings().find(l => l.id === id);
+    const listing = listings.find(l => l.id === id);
     if (!listing) return;
     if (isMockMode() || !marketplace.isConfigured) {
       mockStore.removeListing(id);
@@ -150,12 +149,11 @@ export function useMarketplace() {
       pushActivity('unlist', `Retiro listado #${String(listing.tokenId)}`, `hash: ${hash}`);
       await publicClient!.waitForTransactionReceipt({ hash });
       show('Retiro confirmado', 'success');
-      mockStore.removeListing(id);
-      setListings(mockStore.getListings());
+      await loadListings();
     } catch (e: any) {
       show(e?.shortMessage || e?.message || 'Retiro fallido', 'error');
     }
-  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show]);
+  }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show, listings, loadListings]);
 
   const toggleFavorite = React.useCallback((id: string) => {
     if (!isMockMode()) return;

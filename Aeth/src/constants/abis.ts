@@ -1,40 +1,13 @@
-// ABI mínimos para ERC721 y Staking. Reemplaza con tus ABIs reales al integrar.
+// ABIs reales importados desde artifacts (reducidos a la propiedad "abi" para el bundle)
+// @ts-expect-error: import de JSON sin tipos específicos
+import HERO_JSON from './abis/HeroNFT.json';
+// @ts-expect-error
+import STAKING_JSON from './abis/Staking.json';
+// @ts-expect-error
+import MARKET_JSON from './abis/Marketplace.json';
 
-export const HERO_NFT_ABI = [
-  { "type": "function", "name": "balanceOf", "stateMutability": "view", "inputs": [{ "name": "owner", "type": "address" }], "outputs": [{ "type": "uint256" }] },
-  { "type": "function", "name": "tokenOfOwnerByIndex", "stateMutability": "view", "inputs": [{ "name": "owner", "type": "address" }, { "name": "index", "type": "uint256" }], "outputs": [{ "type": "uint256" }] },
-  { "type": "function", "name": "tokenURI", "stateMutability": "view", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [{ "type": "string" }] },
-  { "type": "function", "name": "ownerOf", "stateMutability": "view", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [{ "type": "address" }] },
-  { "type": "function", "name": "evolve", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [] },
-  { "type": "function", "name": "mintSelf", "stateMutability": "nonpayable", "inputs": [{ "name": "qty", "type": "uint256" }], "outputs": [] },
-  { "type": "function", "name": "setApprovalForAll", "stateMutability": "nonpayable", "inputs": [{ "name": "operator", "type": "address" }, { "name": "approved", "type": "bool" }], "outputs": [] },
-  { "type": "function", "name": "isApprovedForAll", "stateMutability": "view", "inputs": [{ "name": "owner", "type": "address" }, { "name": "operator", "type": "address" }], "outputs": [{ "type": "bool" }] },
-] as const;
-
-export const STAKING_ABI = [
-  { "type": "function", "name": "stake", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenIds", "type": "uint256[]" }], "outputs": [] },
-  { "type": "function", "name": "unstake", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenIds", "type": "uint256[]" }], "outputs": [] },
-  { "type": "function", "name": "claimRewards", "stateMutability": "nonpayable", "inputs": [{ "name": "tokenIds", "type": "uint256[]" }], "outputs": [] },
-  { "type": "function", "name": "pendingRewards", "stateMutability": "view", "inputs": [{ "name": "user", "type": "address" }], "outputs": [{ "type": "uint256" }] },
-  { "type": "function", "name": "isStaked", "stateMutability": "view", "inputs": [{ "name": "tokenId", "type": "uint256" }], "outputs": [{ "type": "bool" }] },
-  { "type": "function", "name": "pendingRewardsFor", "stateMutability": "view", "inputs": [{ "name": "user", "type": "address" }, { "name": "tokenIds", "type": "uint256[]" }], "outputs": [{ "type": "uint256" }] },
-] as const;
-
-// Marketplace mínimo: list/buy/cancel + lectura de listados opcional
-export const MARKETPLACE_ABI = [
-  { "type": "function", "name": "list", "stateMutability": "nonpayable", "inputs": [
-    { "name": "nft", "type": "address" },
-    { "name": "tokenId", "type": "uint256" },
-    { "name": "price", "type": "uint256" }
-  ], "outputs": [] },
-  { "type": "function", "name": "buy", "stateMutability": "payable", "inputs": [
-    { "name": "nft", "type": "address" },
-    { "name": "tokenId", "type": "uint256" }
-  ], "outputs": [] },
-  { "type": "function", "name": "cancel", "stateMutability": "nonpayable", "inputs": [
-    { "name": "nft", "type": "address" },
-    { "name": "tokenId", "type": "uint256" }
-  ], "outputs": [] },
-] as const;
+export const HERO_NFT_ABI = HERO_JSON.abi as const;
+export const STAKING_ABI = STAKING_JSON.abi as const;
+export const MARKETPLACE_ABI = MARKET_JSON.abi as const;
 
 

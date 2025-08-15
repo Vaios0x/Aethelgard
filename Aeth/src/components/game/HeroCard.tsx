@@ -12,7 +12,6 @@ export default function HeroCard({ hero }: HeroCardProps) {
     <Card className="p-0 overflow-hidden">
       <div className="aspect-[4/3] bg-black/30">
         {hero.image && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img src={hero.image} alt={`Héroe ${hero.name}`} className="w-full h-full object-cover" />
         )}
       </div>

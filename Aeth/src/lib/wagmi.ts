@@ -53,10 +53,9 @@ const connectors = wcProjectId
     ], { appName: 'Aethelgard', projectId: 'DISABLED' as unknown as string });
 
 export const config = createConfig({
-  chains: [coreTestnet2, coreMainnet],
+  chains: [coreTestnet2],
   connectors,
   transports: {
-    [coreMainnet.id]: http(coreMainnet.rpcUrls.default.http[0]),
     [coreTestnet2.id]: http(coreTestnet2.rpcUrls.default.http[0]),
   },
   ssr: false,

@@ -46,6 +46,10 @@ const REFRESH_TTL_SEC = Number(process.env.REFRESH_TTL_SEC || 60 * 60 * 24 * 30)
 const CORE_RPC = process.env.CORE_TESTNET2_RPC || 'https://rpc.test2.btcs.network';
 const provider = new ethers.JsonRpcProvider(CORE_RPC);
 
+// Caché simple para /market/listings
+let LISTINGS_CACHE = { data: [], ts: 0 };
+const LISTINGS_TTL_MS = Number(process.env.LISTINGS_TTL_MS || 15_000);
+
 function genNonce() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
@@ -198,6 +202,9 @@ app.get('/users/me/heroes', auth, async (req, res) => {
 // Marketplace: lista activa a partir de eventos + lectura del mapping público
 app.get('/market/listings', async (req, res) => {
   try {
+    if (Date.now() - LISTINGS_CACHE.ts < LISTINGS_TTL_MS) {
+      return res.json({ listings: LISTINGS_CACHE.data });
+    }
     const MARKET_ADDR = process.env.MARKETPLACE_ADDR;
     const HERO_ADDR = process.env.HERO_NFT_ADDR;
     if (!MARKET_ADDR) return res.status(500).json({ error: 'MARKETPLACE_ADDR no configurado' });
@@ -241,9 +248,11 @@ app.get('/market/listings', async (req, res) => {
         }
       } catch {}
     }
+    LISTINGS_CACHE = { data: results, ts: Date.now() };
     res.json({ listings: results });
   } catch (e) {
     log('error', 'listings endpoint failed', e?.message);
+    if (LISTINGS_CACHE.data.length) return res.json({ listings: LISTINGS_CACHE.data });
     res.status(500).json({ error: 'no se pudo cargar listados' });
   }
 });
