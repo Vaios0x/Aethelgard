@@ -21,21 +21,21 @@ export default function ListingGrid({ filter }: { filter: { q?: string; min?: nu
   const pageItems = filtered.slice(start, start + pageSize);
   return (
     <>
-      <div className="flex items-center justify-end gap-2 pb-2">
-        <button className="btn-ghost px-3 py-1" onClick={() => sort('price', 'asc')}>Precio ↑</button>
-        <button className="btn-ghost px-3 py-1" onClick={() => sort('price', 'desc')}>Precio ↓</button>
-        <button className="btn-ghost px-3 py-1" onClick={() => sort('name', 'asc')}>Nombre A-Z</button>
-        <button className="btn-ghost px-3 py-1" onClick={() => sort('name', 'desc')}>Nombre Z-A</button>
+      <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-2 pb-2">
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('price', 'asc')}>Precio ↑</button>
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('price', 'desc')}>Precio ↓</button>
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('name', 'asc')}>Nombre A-Z</button>
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('name', 'desc')}>Nombre Z-A</button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {pageItems.map((it) => (
           <ListingCard key={it.id} item={it} onBuy={buy} onUnlist={unlist} onFav={toggleFavorite} />
         ))}
       </div>
-      <div className="flex items-center justify-center gap-3 pt-4">
-        <button className="btn-ghost px-3 py-1" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Página anterior">Anterior</button>
-        <span className="text-sm text-text-secondary">Página {page} de {totalPages}</span>
-        <button className="btn-ghost px-3 py-1" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} aria-label="Página siguiente">Siguiente</button>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 pt-4">
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Página anterior">Anterior</button>
+        <span className="text-xs sm:text-sm text-text-secondary">Página {page} de {totalPages}</span>
+        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} aria-label="Página siguiente">Siguiente</button>
       </div>
     </>
   );

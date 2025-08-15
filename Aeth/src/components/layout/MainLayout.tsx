@@ -5,7 +5,6 @@ import ConnectWalletButton from '../web3/ConnectWalletButton';
 import ThemeToggle from '../ui/ThemeToggle';
 import Toaster from '../ui/Toaster';
 import { useAethelgardContracts } from '../../hooks/useAethelgardContracts';
-import { isMockMode, setMockMode } from '../../lib/utils';
 import { useAccount, useSwitchChain } from 'wagmi';
 import { coreMainnet, coreTestnet2 } from '../../lib/wagmi';
 import { useActivity } from '../../hooks/useActivity';
@@ -13,20 +12,25 @@ import { useActivity } from '../../hooks/useActivity';
 function Navbar() {
   const { items } = useActivity();
   const { chain } = useAccount();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
   return (
     <header className="sticky top-0 z-50 bg-background/70 backdrop-blur border-b border-white/5">
-      <nav className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between" aria-label="Principal">
-        <Link to="/" className="flex items-center gap-2" aria-label="Aethelgard Inicio">
+      {/* Navbar desktop */}
+      <nav className="hidden sm:flex mx-auto max-w-7xl px-4 py-3 items-center justify-between" aria-label="Principal">
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0" aria-label="Aethelgard Inicio">
           <span className="heading text-xl">Aethelgard</span>
-          <span className="text-text-secondary text-sm hidden sm:block">Command Center</span>
+          <span className="text-text-secondary text-sm">Command Center</span>
         </Link>
-        <ul className="flex items-center gap-2 sm:gap-4">
+
+        {/* Menú de navegación desktop */}
+        <ul className="flex items-center gap-4">
           <li>
             <NavLink
               to="/"
               end
               className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                `px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
             >
               Inicio
             </NavLink>
@@ -35,7 +39,7 @@ function Navbar() {
             <NavLink
               to="/dashboard"
               className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                `px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
             >
               Dashboard
             </NavLink>
@@ -44,7 +48,7 @@ function Navbar() {
             <NavLink
               to="/staking"
               className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                `px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
             >
               Staking
             </NavLink>
@@ -53,17 +57,18 @@ function Navbar() {
             <NavLink
               to="/marketplace"
               className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
-                `px-3 py-2 rounded-md ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                `px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10' : 'hover:bg-white/5'}`}
             >
               Mercado
             </NavLink>
           </li>
         </ul>
+
         <div className="flex items-center gap-2">
-          <Link to="/dashboard" className="relative px-3 py-2 rounded-md hover:bg-white/5" aria-label="Actividad reciente" role="button" tabIndex={0}>
+          <Link to="/dashboard" className="relative px-2 py-2 rounded-md hover:bg-white/5 text-sm" aria-label="Actividad reciente" role="button" tabIndex={0}>
             <span>Actividad</span>
             {items.length > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-primary text-black text-xs flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-3 min-w-[12px] px-0.5 rounded-full bg-primary text-black text-xs flex items-center justify-center">
                 {Math.min(items.length, 9)}
               </span>
             )}
@@ -72,6 +77,80 @@ function Navbar() {
           <ConnectWalletButton />
         </div>
       </nav>
+
+      {/* Navbar móvil - diseño simplificado */}
+      <nav className="sm:hidden px-1 py-1 flex items-center justify-between" aria-label="Principal">
+        <Link to="/" className="flex items-center gap-1 flex-shrink-0" aria-label="Aethelgard Inicio">
+          <span className="heading text-sm">AETHL</span>
+        </Link>
+
+        <div className="flex items-center gap-0.5">
+          <ThemeToggle />
+          <ConnectWalletButton />
+          
+          {/* Menú hamburguesa para móvil */}
+          <button
+            className="p-1 rounded-md hover:bg-white/5"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Abrir menú de navegación"
+            aria-expanded={isMenuOpen}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      {/* Menú móvil desplegable */}
+      {isMenuOpen && (
+        <div className="sm:hidden bg-background/95 backdrop-blur border-b border-white/5">
+          <div className="px-3 py-3 space-y-2">
+            <NavLink
+              to="/"
+              end
+              onClick={() => setIsMenuOpen(false)}
+              className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
+                `block px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10 text-primary' : 'text-text-primary hover:bg-white/5'}`}
+            >
+              Inicio
+            </NavLink>
+            <NavLink
+              to="/dashboard"
+              onClick={() => setIsMenuOpen(false)}
+              className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
+                `block px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10 text-primary' : 'text-text-primary hover:bg-white/5'}`}
+            >
+              Dashboard
+              {items.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary text-black text-xs">
+                  {Math.min(items.length, 9)}
+                </span>
+              )}
+            </NavLink>
+            <NavLink
+              to="/staking"
+              onClick={() => setIsMenuOpen(false)}
+              className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
+                `block px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10 text-primary' : 'text-text-primary hover:bg-white/5'}`}
+            >
+              Staking
+            </NavLink>
+            <NavLink
+              to="/marketplace"
+              onClick={() => setIsMenuOpen(false)}
+              className={({ isActive }: { isActive: boolean; isPending: boolean; isTransitioning?: boolean }) =>
+                `block px-3 py-2 rounded-md text-sm ${isActive ? 'bg-white/10 text-primary' : 'text-text-primary hover:bg-white/5'}`}
+            >
+              Mercado
+            </NavLink>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -79,17 +158,17 @@ function Navbar() {
 function Footer() {
   return (
     <footer className="mt-12 border-t border-neutral-800 bg-neutral-900/60">
-      <div className="mx-auto max-w-7xl px-4 py-10 grid gap-8 md:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 py-8 sm:py-10 grid gap-6 sm:gap-8 md:grid-cols-4">
         <div>
           <a href="/" className="inline-flex items-baseline gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded">
-            <span className="text-lg font-semibold">Aethelgard</span>
-            <span className="text-sm text-neutral-400">Command Center</span>
+            <span className="text-base sm:text-lg font-semibold">Aethelgard</span>
+            <span className="text-xs sm:text-sm text-neutral-400">Command Center</span>
           </a>
-          <p className="mt-3 text-sm text-neutral-400">Evoluciona, stakea y gestiona tus Héroes NFT en el ecosistema Core.</p>
+          <p className="mt-3 text-xs sm:text-sm text-neutral-400">Evoluciona, stakea y gestiona tus Héroes NFT en el ecosistema Core.</p>
         </div>
         <nav aria-label="Producto">
           <h3 className="text-sm font-semibold text-neutral-300">Producto</h3>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-400">
+          <ul className="mt-3 space-y-2 text-xs sm:text-sm text-neutral-400">
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="/dashboard">Dashboard</a></li>
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="/staking">Staking</a></li>
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="/marketplace">Mercado</a></li>
@@ -97,7 +176,7 @@ function Footer() {
         </nav>
         <nav aria-label="Comunidad">
           <h3 className="text-sm font-semibold text-neutral-300">Comunidad</h3>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-400">
+          <ul className="mt-3 space-y-2 text-xs sm:text-sm text-neutral-400">
             <li>
               <a className="inline-flex items-center gap-2 hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="https://x.com/" target="_blank" rel="noreferrer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M18.244 2H21l-6.56 7.49L22 22h-6.828l-5.09-6.58L4.2 22H2l6.993-7.986L2 2h6.828l4.59 6.04L18.244 2Zm-1.196 18h1.847L7.06 4H5.118l11.93 16Z"/></svg>
@@ -120,7 +199,7 @@ function Footer() {
         </nav>
         <nav aria-label="Recursos">
           <h3 className="text-sm font-semibold text-neutral-300">Recursos</h3>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-400">
+          <ul className="mt-3 space-y-2 text-xs sm:text-sm text-neutral-400">
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="#">Documentación</a></li>
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="#">Estado del servicio</a></li>
             <li><a className="hover:text-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1" href="mailto:support@aethelgard.app">Soporte</a></li>
@@ -128,7 +207,7 @@ function Footer() {
         </nav>
       </div>
       <div className="border-t border-neutral-800">
-        <div className="mx-auto max-w-7xl px-4 py-6 text-xs text-neutral-500 flex flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-6 text-xs text-neutral-500 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
           <p>© {new Date().getFullYear()} Aethelgard. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4">
             <a href="#" className="hover:text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded px-1">Privacidad</a>
@@ -147,17 +226,17 @@ export default function MainLayout() {
   return (
     <div className="min-h-full flex flex-col">
       <Navbar />
-      {/* Aviso deshabilitado temporalmente */}
+      {/* Aviso de red no soportada */}
       {chain && chain.id !== coreTestnet2.id && (
         <div className="bg-purple-900/30 border-b border-purple-700/30 text-text-primary">
-          <div className="mx-auto max-w-7xl px-4 py-2 text-sm flex items-center gap-3">
-            Red actual no soportada: {chain.name}. Cambia a Core Testnet2.
-            <button className="btn-ghost px-3 py-1" onClick={() => switchChain({ chainId: coreTestnet2.id })}>Core Testnet2</button>
+          <div className="mx-auto max-w-7xl px-3 sm:px-4 py-2 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+            <span className="flex-1">Red actual no soportada: {chain.name}. Cambia a Core Testnet2.</span>
+            <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm whitespace-nowrap" onClick={() => switchChain({ chainId: coreTestnet2.id })}>Core Testnet2</button>
             {switchError && <span className="text-amber-300 text-xs">No se pudo cambiar la red. Abre tu wallet y acepta.</span>}
           </div>
         </div>
       )}
-      <main className="flex-1 mx-auto max-w-7xl w-full px-4 py-8">
+      <main className="flex-1 mx-auto max-w-7xl w-full px-3 sm:px-4 py-6 sm:py-8">
         <Outlet />
       </main>
       <Footer />

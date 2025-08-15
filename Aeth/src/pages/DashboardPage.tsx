@@ -6,7 +6,7 @@ import HeroGrid from '../components/game/HeroGrid';
 import Card from '../components/ui/Card';
 import { useAethelgardContracts } from '../hooks/useAethelgardContracts';
 import { authorizedFetch, getToken } from '../lib/api';
-import { isMockMode } from '../lib/utils';
+
 import ActivityList from '../components/activity/ActivityList';
 import Button from '../components/ui/Button';
 import { useWriteContract } from 'wagmi';
@@ -27,14 +27,14 @@ export default function DashboardPage() {
       } catch {}
     })();
   }, []);
-  if (!address && !isMockMode()) {
+  if (!address) {
     return (
       <Card>
         <p className="text-amber-300">Conecta tu wallet para entrar al Dashboard.</p>
       </Card>
     );
   }
-  if (!heroNft.isConfigured && !isMockMode()) {
+  if (!heroNft.isConfigured) {
     return (
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
         <div className="flex items-center justify-between gap-4">
@@ -48,22 +48,23 @@ export default function DashboardPage() {
     );
   }
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {me && (
-        <div className="p-4 rounded-xl bg-neutral-800/60 border border-neutral-700 flex items-center justify-between">
+        <div className="p-3 sm:p-4 rounded-xl bg-neutral-800/60 border border-neutral-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
           <div>
             <p className="text-sm text-neutral-400">Sesión iniciada</p>
-            <p className="text-neutral-200">{me.walletAddress}</p>
+            <p className="text-neutral-200 text-sm sm:text-base break-all">{me.walletAddress}</p>
           </div>
           <span className="px-2 py-1 text-xs rounded-md bg-emerald-600/20 border border-emerald-400/40 text-emerald-200">OK</span>
         </div>
       )}
       <UserProfile />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <h2 className="heading text-2xl">Tus Héroes</h2>
         {heroNft.isConfigured && address && (
           <Button
             aria-label="Crear héroe"
+            className="w-full sm:w-auto"
             onClick={async () => {
               try {
                 await writeContract({
@@ -80,7 +81,7 @@ export default function DashboardPage() {
       </div>
       <HeroGrid />
       <div>
-        <h2 className="heading text-2xl mb-2">Actividad</h2>
+        <h2 className="heading text-2xl mb-3 sm:mb-2">Actividad</h2>
         <ActivityList />
       </div>
     </div>

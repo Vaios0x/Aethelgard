@@ -21,17 +21,17 @@ export default function HeroDetailPage() {
   );
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
       <Card className="p-0 overflow-hidden md:col-span-2">
         {hero.image && (
           <img src={hero.image} alt={`Héroe ${hero.name}`} className="w-full object-cover" />
         )}
-        <div className="p-4 space-y-2">
-          <h1 className="heading text-3xl">{hero.name}</h1>
-          <p className="text-text-secondary">Clase: {hero.class} · Nivel {hero.level}</p>
+        <div className="p-3 sm:p-4 space-y-3 sm:space-y-2">
+          <h1 className="heading text-2xl sm:text-3xl">{hero.name}</h1>
+          <p className="text-text-secondary text-sm sm:text-base">Clase: {hero.class} · Nivel {hero.level}</p>
           {hero.description && <p className="text-sm text-text-secondary">{hero.description}</p>}
           {hero.attributes && (
-            <div className="grid grid-cols-3 gap-2 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
               <Card>
                 <div className="text-text-secondary">Fuerza</div>
                 <div className="heading">{hero.attributes.strength}</div>

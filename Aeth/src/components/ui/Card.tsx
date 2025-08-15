@@ -7,7 +7,7 @@ interface CardProps extends PropsWithChildren {
 
 export default function Card({ children, className }: CardProps) {
   return (
-    <div className={clsx('card-surface rounded-xl p-4', className)}>
+    <div className={clsx('card-surface rounded-xl p-3 sm:p-4', className)}>
       {children}
     </div>
   );

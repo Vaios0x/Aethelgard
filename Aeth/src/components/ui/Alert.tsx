@@ -18,9 +18,9 @@ const variants: Record<AlertVariant, string> = {
 
 export default function Alert({ title, children, variant = 'info', className }: AlertProps) {
   return (
-    <div className={clsx('rounded-md border p-3', variants[variant], className)} role="status" aria-live="polite">
-      {title && <div className="font-semibold mb-1">{title}</div>}
-      <div className="text-sm">{children}</div>
+    <div className={clsx('rounded-md border p-2 sm:p-3', variants[variant], className)} role="status" aria-live="polite">
+      {title && <div className="font-semibold mb-1 text-sm sm:text-base">{title}</div>}
+      <div className="text-xs sm:text-sm">{children}</div>
     </div>
   );
 }

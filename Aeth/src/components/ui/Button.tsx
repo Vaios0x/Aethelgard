@@ -11,7 +11,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { className, children, variant = 'primary', isLoading = false, disabled, ...props },
   ref
 ) {
-  const base = 'inline-flex items-center justify-center px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 transition text-sm';
+  const base = 'inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 transition text-sm';
   const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
     primary: 'btn-primary',
     ghost: 'btn-ghost',

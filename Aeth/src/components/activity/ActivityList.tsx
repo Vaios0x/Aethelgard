@@ -30,25 +30,31 @@ export default function ActivityList() {
   return (
     <Card>
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="text-sm text-text-secondary">Tipo</label>
-          <select className="bg-surface border border-white/10 rounded px-2 py-1" value={type} onChange={(e) => setType(e.target.value)} aria-label="Tipo de actividad">
-            {TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-          <label className="text-sm text-text-secondary ml-2">Desde</label>
-          <input type="date" className="bg-surface border border-white/10 rounded px-2 py-1" value={from} onChange={(e) => setFrom(e.target.value)} />
-          <label className="text-sm text-text-secondary ml-2">Hasta</label>
-          <input type="date" className="bg-surface border border-white/10 rounded px-2 py-1" value={to} onChange={(e) => setTo(e.target.value)} />
+        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-end gap-2">
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm text-text-secondary">Tipo</label>
+            <select className="bg-surface border border-white/10 rounded px-2 py-1 text-xs sm:text-sm" value={type} onChange={(e) => setType(e.target.value)} aria-label="Tipo de actividad">
+              {TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm text-text-secondary">Desde</label>
+            <input type="date" className="bg-surface border border-white/10 rounded px-2 py-1 text-xs sm:text-sm" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm text-text-secondary">Hasta</label>
+            <input type="date" className="bg-surface border border-white/10 rounded px-2 py-1 text-xs sm:text-sm" value={to} onChange={(e) => setTo(e.target.value)} />
+          </div>
         </div>
         <div className="divide-y divide-white/5">
           {filtered.length === 0 ? (
-            <div className="text-text-secondary text-sm py-6">Sin actividad todavía.</div>
+            <div className="text-text-secondary text-xs sm:text-sm py-4 sm:py-6">Sin actividad todavía.</div>
           ) : (
             filtered.map((it) => (
-              <div key={it.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <div className="heading text-sm">{it.summary}</div>
-                  {it.details && <div className="text-xs text-text-secondary">{it.details}</div>}
+              <div key={it.id} className="py-2 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex-1 min-w-0">
+                  <div className="heading text-xs sm:text-sm">{it.summary}</div>
+                  {it.details && <div className="text-xs text-text-secondary break-words">{it.details}</div>}
                   {it.details?.includes('hash:') && (
                     <a
                       className="text-xs text-primary underline"
@@ -57,7 +63,7 @@ export default function ActivityList() {
                     >View on CoreScan</a>
                   )}
                 </div>
-                <div className="text-xs text-text-secondary">{new Date(it.timestamp).toLocaleString('es-MX')}</div>
+                <div className="text-xs text-text-secondary whitespace-nowrap">{new Date(it.timestamp).toLocaleString('es-MX')}</div>
               </div>
             ))
           )}

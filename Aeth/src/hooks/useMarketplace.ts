@@ -1,30 +1,25 @@
 // @ts-nocheck
 import React from 'react';
-import { mockStore } from '../lib/mockStore';
 import type { ListingItem } from '../types/marketplace';
 import { useToast } from '../lib/notifications';
-import { isMockMode } from '../lib/utils';
 import { pushActivity } from './useActivity';
 import { useAethelgardContracts } from './useAethelgardContracts';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { authorizedFetch } from '../lib/api';
 
 export function useMarketplace() {
-  const [, force] = React.useReducer((x: number) => x + 1, 0);
   const { show } = useToast();
   const { marketplace, heroNft } = useAethelgardContracts();
   const { address } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
-  React.useEffect(() => mockStore.subscribe(force), []);
-
   const [listingsState, setListings] = React.useState<ListingItem[]>([]);
   const listings = listingsState;
 
   const loadListings = React.useCallback(async () => {
-    if (isMockMode() || !marketplace.isConfigured) {
-      setListings(mockStore.getListings());
+    if (!marketplace.isConfigured) {
+      setListings([]);
       return;
     }
     try {
@@ -40,9 +35,9 @@ export function useMarketplace() {
         isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
       }));
       setListings(items);
-    } catch {
-      // fallback a mocks si falla backend
-      setListings(mockStore.getListings());
+    } catch (error) {
+      console.error('Error loading listings:', error);
+      setListings([]);
     }
   }, [address, marketplace.isConfigured]);
 
@@ -51,14 +46,11 @@ export function useMarketplace() {
     let mounted = true;
     (async () => { if (mounted) await loadListings(); })();
     return () => { mounted = false; };
-  }, [loadListings, force]);
+  }, [loadListings]);
 
   const buy = React.useCallback(async (id: string) => {
-    if (isMockMode() || !marketplace.isConfigured) {
-      mockStore.removeListing(id);
-      show('Compra simulada completada.', 'success');
-      pushActivity('buy', `Compra de listado ${id}`);
-      setListings(mockStore.getListings());
+    if (!marketplace.isConfigured) {
+      show('Marketplace no configurado', 'error');
       return;
     }
     const listing = listings.find(l => l.id === id);
@@ -91,12 +83,8 @@ export function useMarketplace() {
   }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show, listings, loadListings]);
 
   const list = React.useCallback(async (item: Omit<ListingItem, 'id'>) => {
-    if (isMockMode() || !marketplace.isConfigured) {
-      const id = Math.random().toString(36).slice(2);
-      mockStore.addListing({ ...item, id });
-      show('Listado simulado publicado.', 'success');
-      pushActivity('list', `Listado de #${String(item.tokenId)} por ${item.priceCore} CORE`);
-      setListings(mockStore.getListings());
+    if (!marketplace.isConfigured) {
+      show('Marketplace no configurado', 'error');
       return;
     }
     try {
@@ -135,11 +123,8 @@ export function useMarketplace() {
   const unlist = React.useCallback(async (id: string) => {
     const listing = listings.find(l => l.id === id);
     if (!listing) return;
-    if (isMockMode() || !marketplace.isConfigured) {
-      mockStore.removeListing(id);
-      show('Listado simulado retirado.', 'success');
-      pushActivity('unlist', `Retiro de listado ${id}`);
-      setListings(mockStore.getListings());
+    if (!marketplace.isConfigured) {
+      show('Marketplace no configurado', 'error');
       return;
     }
     try {
@@ -155,13 +140,13 @@ export function useMarketplace() {
     }
   }, [address, heroNft.address, marketplace.address, marketplace.abi, publicClient, walletClient, show, listings, loadListings]);
 
+  // Funciones eliminadas - ya no se usan mocks
   const toggleFavorite = React.useCallback((id: string) => {
-    if (!isMockMode()) return;
-    mockStore.toggleFavorite(id);
+    // No-op - funcionalidad eliminada
   }, []);
 
   const sort = React.useCallback((field: 'price' | 'name', order: 'asc' | 'desc') => {
-    mockStore.sortBy(field, order);
+    // No-op - funcionalidad eliminada
   }, []);
 
   return { listings, buy, list, unlist, toggleFavorite, sort };

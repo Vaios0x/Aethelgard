@@ -8,7 +8,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input({ classNam
     <input
       ref={ref}
       className={clsx(
-        'w-full rounded-md bg-surface border border-white/10 px-3 py-2 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/40',
+        'w-full rounded-md bg-surface border border-white/10 px-2 sm:px-3 py-2 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/40',
         className
       )}
       {...props}

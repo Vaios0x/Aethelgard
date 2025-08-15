@@ -5,7 +5,6 @@ import { useToast } from '../../lib/notifications';
 import { SiweMessage } from 'siwe';
 import { getNonce, loginSiwe, setToken, getToken, clearToken } from '../../lib/api';
 import { coreTestnet2, ensureChain } from '../../lib/wagmi';
-import { isMockMode } from '../../lib/utils';
 
 export default function ConnectWalletButton() {
   const { address, chain } = useAccount();
@@ -58,14 +57,7 @@ export default function ConnectWalletButton() {
     } catch (e: any) {
       console.error(e);
       if (e?.message === 'backend-offline') {
-        if (isMockMode()) {
-          // Autenticación simulada en Demo Mode
-          setToken('DEMO_TOKEN');
-          setAuthed(true);
-          show('Sesión simulada iniciada (Demo Mode)', 'success');
-        } else {
-          show('No se pudo conectar al backend. Revisa VITE_BACKEND_URL o usa Demo Mode.', 'error');
-        }
+        show('No se pudo conectar al backend. Revisa VITE_BACKEND_URL.', 'error');
       } else {
         show(e?.message ?? 'No se pudo iniciar sesión', 'error');
       }
@@ -95,11 +87,11 @@ export default function ConnectWalletButton() {
   }, [address, pendingSiweAfterConnect]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       <ConnectButton chainStatus="icon" showBalance={false} />
       {address && !authed && (
         <button
-          className="btn-ghost px-3 py-2 rounded-md"
+          className="btn-ghost px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm whitespace-nowrap min-w-fit"
           onClick={handleEntrarClick}
           disabled={isLoading}
           aria-label="Iniciar sesión con SIWE"
@@ -110,15 +102,21 @@ export default function ConnectWalletButton() {
       )}
       {authed && (
         <>
-          <span className="px-2 py-1 text-xs rounded-md bg-emerald-600/20 border border-emerald-400/40 text-emerald-200"
+          <span className="hidden sm:inline px-3 py-1 text-xs rounded-md bg-emerald-600/20 border border-emerald-400/40 text-emerald-200 whitespace-nowrap"
             aria-live="polite"
           >Sesión activa</span>
+          <span className="sm:hidden px-1 py-1 text-xs rounded-md bg-emerald-600/20 border border-emerald-400/40 text-emerald-200"
+            aria-live="polite"
+          >✓</span>
           <button
-            className="btn-ghost px-3 py-2 rounded-md"
+            className="btn-ghost px-1 sm:px-3 py-2 rounded-md text-xs sm:text-sm whitespace-nowrap min-w-fit"
             onClick={() => { clearToken(); setAuthed(false); }}
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
-          >Salir</button>
+          >
+            <span className="hidden sm:inline">Salir</span>
+            <span className="sm:hidden">×</span>
+          </button>
         </>
       )}
     </div>

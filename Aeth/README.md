@@ -82,15 +82,13 @@ Ejemplo de spinner ya integrado en `Button.tsx`:
   - Construcción y firma del `SiweMessage` (dominio = hostname, sin puertos extra).
   - `loginSiwe(message, signature)` para obtener `accessToken` (guardado en `localStorage`).
 - `RequireAuth` protege rutas sensibles (`/dashboard`, `/staking`) si no hay JWT.
-- Tolerancia a fallos: si el backend está offline y `VITE_MOCKS=true`, permite sesión simulada.
+- Tolerancia a fallos: si el backend está offline, muestra error y requiere configuración correcta.
 
-### Modo Demo (Mocks)
+### Modo Demo (Eliminado)
 
-- Actívalo con `VITE_MOCKS=true` o dinámicamente en `localStorage.AETH_MOCKS`.
-- Efectos:
-  - Marketplace, actividad y staking funcionan con `mockStore`.
-  - Acciones muestran toasts y actualizan contadores sin tocar la blockchain.
-  - Puedes alternar entre demo y onchain sin reiniciar la UI.
+- El modo demo ha sido eliminado completamente.
+- Todas las funcionalidades ahora usan contratos reales en Core Testnet2.
+- No hay más simulaciones o mocks.
 
 ### Variables de entorno
 
@@ -107,19 +105,50 @@ VITE_HERO_NFT_MAINNET=0x0000000000000000000000000000000000000000
 VITE_STAKING_MAINNET=0x0000000000000000000000000000000000000000
 
 # Contratos (Core Testnet2)
-VITE_HERO_NFT_TESTNET=0x0000000000000000000000000000000000000000
-VITE_STAKING_TESTNET=0x0000000000000000000000000000000000000000
+VITE_HERO_NFT_TESTNET=0x5b33069977773557D07023A73468fD16F83ebaea
+VITE_STAKING_TESTNET=0xE01592cE50FeFF1e9FB65888c66Dd5c6c4C85637
+VITE_MARKETPLACE_TESTNET=0xAf59e08968446664acE238d3B3415179e5E2E428
 
-# Demo mode
-VITE_MOCKS=true
+# Demo mode (eliminado - solo contratos reales)
+# VITE_MOCKS=false
 ```
+
+### Configuración Rápida para Core Testnet2
+
+1. **Clona el repositorio**:
+   ```bash
+   git clone <repo-url>
+   cd Aeth/Aeth
+   ```
+
+2. **Instala dependencias**:
+   ```bash
+   npm install
+   ```
+
+3. **Configura variables de entorno**:
+   ```bash
+   cp env.example .env
+   # El archivo .env ya tiene las direcciones correctas de Core Testnet2
+   ```
+
+4. **Ejecuta el servidor de desarrollo**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Verifica la configuración** (opcional):
+   ```bash
+   node scripts/verify-setup.js
+   ```
 
 ### Scripts (Frontend)
 
-- `npm i`
+- `npm i` — instalar dependencias
 - `npm run dev` — servidor de desarrollo (Vite)
 - `npm run build` — build de producción
 - `npm run preview` — vista previa del build
+- `node scripts/verify-setup.js` — verificar configuración
 
 ### Integración con Core
 
@@ -140,6 +169,11 @@ VITE_MOCKS=true
 ### Live Demo
 
 - Frontend: https://aethelgard-one.vercel.app/
+
+### Documentación Adicional
+
+- **Configuración detallada**: [SETUP_TESTNET.md](./SETUP_TESTNET.md) - Guía completa para Core Testnet2
+- **Verificación de setup**: `node scripts/verify-setup.js` - Script para verificar configuración
 
 ### Accesibilidad
 

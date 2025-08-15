@@ -16,14 +16,14 @@ export default function MarketplacePage() {
   const [price, setPrice] = React.useState(0.9);
   const { list } = useMarketplace();
   return (
-    <div className="space-y-6">
-      <h1 className="heading text-3xl">Mercado</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <h1 className="heading text-2xl sm:text-3xl">Mercado</h1>
       <FilterBar onFilterChange={setFilter} />
       <Card>
-        <h2 className="heading text-xl mb-2">Mi inventario (mock)</h2>
+        <h2 className="heading text-xl mb-3 sm:mb-2">Mi inventario (mock)</h2>
         <div className="flex flex-wrap gap-2">
           {heroes?.map((h) => (
-            <button key={String(h.id)} className="btn-ghost px-3 py-1" onClick={() => { setSelectedId(h.id); setOpen(true); }}>
+            <button key={String(h.id)} className="btn-ghost px-2 sm:px-3 py-1 text-sm" onClick={() => { setSelectedId(h.id); setOpen(true); }}>
               #{String(h.id)} {h.name}
             </button>
           ))}
@@ -42,7 +42,7 @@ export default function MarketplacePage() {
             value={price}
             onChange={(e) => setPrice(Number((e.target as HTMLInputElement).value))}
           />
-          <Button onClick={() => { if (selectedId!=null) list({ tokenId: selectedId, name: `Hero #${selectedId}`, priceCore: price, seller: '0xYOU', isOwn: true }); setOpen(false); }}>Publicar (mock)</Button>
+          <Button onClick={() => { if (selectedId!=null) list({ tokenId: selectedId, name: `Hero #${selectedId}`, priceCore: price, seller: '0xYOU', isOwn: true }); setOpen(false); }} className="w-full">Publicar (mock)</Button>
         </div>
       </Drawer>
     </div>

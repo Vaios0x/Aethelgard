@@ -8,7 +8,6 @@ import StakingPanel from '../../staking/StakingPanel';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  try { window.localStorage.setItem('AETH_MOCKS', 'true'); } catch {}
   const qc = new QueryClient();
   return (
     <WagmiProvider config={config}>

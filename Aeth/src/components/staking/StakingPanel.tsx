@@ -5,7 +5,6 @@ import Card from '../ui/Card';
 import { useAccount } from 'wagmi';
 import { useStakingActions } from '../../hooks/useUserBalances';
 import { useToast } from '../../lib/notifications';
-import { isMockMode } from '../../lib/utils';
 import { useUserHeroes } from '../../hooks/useUserHeroes';
 
 export default function StakingPanel() {
@@ -27,13 +26,13 @@ export default function StakingPanel() {
       )}
       {isSuccess && (<div className="text-emerald-400 text-sm" role="status">Transacción confirmada.</div>)}
       {heroes?.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {heroes.map((h) => {
             const isSelected = selectedIds.includes(h.id);
             return (
               <button
                 key={String(h.id)}
-                className={`px-3 py-2 rounded-md border ${isSelected ? 'border-primary bg-white/10' : 'border-white/10 hover:bg-white/5'}`}
+                className={`px-2 sm:px-3 py-2 rounded-md border text-sm ${isSelected ? 'border-primary bg-white/10' : 'border-white/10 hover:bg-white/5'}`}
                 onClick={() => setSelectedIds((prev) => prev.includes(h.id) ? prev.filter(i => i!==h.id) : [...prev, h.id])}
                 aria-label={`Seleccionar héroe ${h.name}`}
                 title={h.staked ? 'En staking' : 'Disponible'}
@@ -42,14 +41,14 @@ export default function StakingPanel() {
           })}
         </div>
       )}
-      <div className="flex gap-3">
-        <Button onClick={() => { stakeSelected(selectedIds); show('Tx enviada: stakeando héroes…', 'info'); }} isLoading={isPending} aria-label="Stakear seleccionados">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button onClick={() => { stakeSelected(selectedIds); show('Tx enviada: stakeando héroes…', 'info'); }} isLoading={isPending} aria-label="Stakear seleccionados" className="w-full sm:w-auto">
           Stakear
         </Button>
-        <Button variant="ghost" onClick={() => { unstakeSelected(selectedIds); show('Tx enviada: des-stakeando héroes…', 'info'); }} isLoading={isPending} aria-label="Des-stakear seleccionados">
+        <Button variant="ghost" onClick={() => { unstakeSelected(selectedIds); show('Tx enviada: des-stakeando héroes…', 'info'); }} isLoading={isPending} aria-label="Des-stakear seleccionados" className="w-full sm:w-auto">
           Des-stakear
         </Button>
-        <Button variant="surface" onClick={() => { claim(selectedIds); show('Tx enviada: reclamando recompensas…', 'info'); }} isLoading={isPending} aria-label="Reclamar recompensas">
+        <Button variant="surface" onClick={() => { claim(selectedIds); show('Tx enviada: reclamando recompensas…', 'info'); }} isLoading={isPending} aria-label="Reclamar recompensas" className="w-full sm:w-auto">
           Reclamar
         </Button>
       </div>

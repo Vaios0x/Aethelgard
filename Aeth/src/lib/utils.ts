@@ -28,24 +28,14 @@ export function isZeroAddress(address?: string): boolean {
   return /^0x0{40}$/i.test(address);
 }
 
-export function isMockMode(): boolean {
-  // Permite override en runtime vía localStorage.
-  try {
-    const override = typeof window !== 'undefined' ? window.localStorage.getItem('AETH_MOCKS') : null;
-    if (override === 'true') return true;
-    if (override === 'false') return false;
-  } catch {}
-  // Por defecto: mock desactivado. Solo se activa si VITE_MOCKS es "true"
-  const flag = import.meta.env.VITE_MOCKS as string | undefined;
-  return flag === 'true';
-}
+// Función eliminada - ya no se usa modo mock
+// export function isMockMode(): boolean {
+//   return false; // Siempre false - solo contratos reales
+// }
 
-export function setMockMode(enabled: boolean): void {
-  try {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('AETH_MOCKS', enabled ? 'true' : 'false');
-    }
-  } catch {}
-}
+// Función eliminada - ya no se usa modo mock
+// export function setMockMode(enabled: boolean): void {
+//   // No-op
+// }
 
 

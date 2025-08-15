@@ -18,7 +18,7 @@ export default function Badge({ variant = 'default', className, ...props }: Badg
   return (
     <span
       className={clsx(
-        'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium',
+        'inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md text-xs font-medium',
         variants[variant],
         className
       )}

@@ -18,4 +18,148 @@
   .btn-surface { @apply bg-surface text-text-primary hover:bg-white/10 border border-white/10 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed; }
 }
 
+/* RainbowKit buttons más pequeños en móviles */
+@layer utilities {
+  @media (max-width: 640px) {
+    /* Estilos ultra-agresivos para RainbowKit */
+    /* Contenedor principal de RainbowKit */
+    [data-testid="rk-connect-button"],
+    .rk-connect-button,
+    [class*="rk-connect-button"] {
+      font-size: 0.625rem !important;
+      padding: 0.125rem 0.375rem !important;
+      min-height: auto !important;
+      height: auto !important;
+      max-width: 160px !important;
+    }
+    
+    /* Todos los botones dentro de RainbowKit */
+    [data-testid="rk-connect-button"] button,
+    [data-testid="rk-connect-button"] [role="button"],
+    [data-testid="rk-connect-button"] > div,
+    [data-testid="rk-connect-button"] > div > div,
+    .rk-connect-button button,
+    .rk-connect-button [role="button"],
+    .rk-connect-button > div,
+    .rk-connect-button > div > div,
+    [class*="rk-connect-button"] button,
+    [class*="rk-connect-button"] [role="button"],
+    [class*="rk-connect-button"] > div,
+    [class*="rk-connect-button"] > div > div {
+      padding: 0.125rem 0.375rem !important;
+      font-size: 0.625rem !important;
+      line-height: 0.875rem !important;
+      min-height: auto !important;
+      height: auto !important;
+      max-width: 140px !important;
+    }
+    
+    /* Todos los textos */
+    [data-testid="rk-connect-button"] span,
+    [data-testid="rk-connect-button"] div,
+    .rk-connect-button span,
+    .rk-connect-button div,
+    [class*="rk-connect-button"] span,
+    [class*="rk-connect-button"] div {
+      font-size: 0.625rem !important;
+      line-height: 0.875rem !important;
+    }
+    
+    /* Todos los iconos */
+    [data-testid="rk-connect-button"] svg,
+    .rk-connect-button svg,
+    [class*="rk-connect-button"] svg {
+      width: 0.625rem !important;
+      height: 0.625rem !important;
+    }
+    
+    /* Reducir espacio entre elementos */
+    [data-testid="rk-connect-button"] > div > div + div,
+    .rk-connect-button > div > div + div,
+    [class*="rk-connect-button"] > div > div + div {
+      margin-left: 0.125rem !important;
+    }
+    
+    /* Estilos específicos para botones de red y wallet */
+    [data-testid="rk-chain-button"],
+    [data-testid="rk-account-button"],
+    [class*="rk-chain-button"],
+    [class*="rk-account-button"] {
+      padding: 0.125rem 0.375rem !important;
+      font-size: 0.625rem !important;
+      min-height: auto !important;
+      height: auto !important;
+      max-width: 120px !important;
+    }
+    
+    /* Forzar tamaños máximos */
+    [data-testid="rk-connect-button"] *,
+    .rk-connect-button *,
+    [class*="rk-connect-button"] * {
+      font-size: 0.625rem !important;
+      max-width: 160px !important;
+    }
+    
+    /* Estilos ultra-específicos para RainbowKit */
+    /* Botones de red */
+    [class*="rk-chain-button"],
+    [class*="rk-chain-button"] button,
+    [class*="rk-chain-button"] [role="button"] {
+      padding: 0.125rem 0.375rem !important;
+      font-size: 0.625rem !important;
+      min-height: auto !important;
+      height: auto !important;
+      max-width: 100px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    /* Botones de wallet */
+    [class*="rk-account-button"],
+    [class*="rk-account-button"] button,
+    [class*="rk-account-button"] [role="button"] {
+      padding: 0.125rem 0.375rem !important;
+      font-size: 0.625rem !important;
+      min-height: auto !important;
+      height: auto !important;
+      max-width: 100px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    /* Contenedores de RainbowKit */
+    [class*="rk-connect-button"],
+    [class*="rk-connect-button"] > div {
+      max-width: 240px !important;
+      display: flex !important;
+      gap: 0.125rem !important;
+    }
+    
+    /* Forzar tamaños en todos los elementos de RainbowKit */
+    [class*="rk-"] {
+      font-size: 0.625rem !important;
+    }
+    
+    /* Estilos para el texto de dirección */
+    [class*="rk-account-button"] span,
+    [class*="rk-account-button"] div {
+      font-size: 0.625rem !important;
+      max-width: 80px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    /* Estilos para el texto de red */
+    [class*="rk-chain-button"] span,
+    [class*="rk-chain-button"] div {
+      font-size: 0.625rem !important;
+      max-width: 80px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+}
+
 

@@ -2,7 +2,6 @@
 import React from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 import { useAethelgardContracts } from './useAethelgardContracts';
-import { isMockMode } from '../lib/utils';
 import { authorizedFetch, getToken } from '../lib/api';
 import type { HeroData } from '../types/hero';
 
@@ -14,7 +13,6 @@ export function useUserHeroes() {
   const [isLoading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    // Sin mocks por defecto
     if (!address) { setHeroes([]); return; }
     if (!heroNft.isConfigured) { setHeroes([]); return; }
     let mounted = true;
@@ -74,7 +72,7 @@ export function useUserHeroes() {
             metadata = await res.json();
           } catch {}
           let isStaked = false;
-          if (staking.isConfigured && !isMockMode()) {
+          if (staking.isConfigured) {
             isStaked = await publicClient!.readContract({ address: staking.address, abi: staking.abi, functionName: 'isStaked', args: [id] }) as boolean;
           }
           const hero: HeroData = {

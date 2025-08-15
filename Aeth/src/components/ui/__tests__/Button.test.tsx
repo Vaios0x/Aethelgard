@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Button from '../../ui/Button';
+import Button from '../Button';
 import { describe, it, expect, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 describe('Button', () => {
   it('renderiza el contenido', () => {
