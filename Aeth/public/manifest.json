@@ -1,0 +1,92 @@
+{
+  "name": "Aethelgard - Command Center",
+  "short_name": "Aethelgard",
+  "description": "El Command Center para tus Héroes NFT: evoluciona, stakea y comercia en Core DAO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["games", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/images/hero-1.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/hero-1.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/hero-1.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Acceso rápido al dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/images/hero-1.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Marketplace",
+      "short_name": "Mercado",
+      "description": "Acceso rápido al marketplace",
+      "url": "/marketplace",
+      "icons": [
+        {
+          "src": "/images/hero-1.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Staking",
+      "short_name": "Staking",
+      "description": "Acceso rápido al staking",
+      "url": "/staking",
+      "icons": [
+        {
+          "src": "/images/hero-1.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/hero-1.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Dashboard de Aethelgard"
+    },
+    {
+      "src": "/images/hero-1.svg",
+      "sizes": "750x1334",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Vista móvil de Aethelgard"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

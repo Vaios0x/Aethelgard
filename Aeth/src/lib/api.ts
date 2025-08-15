@@ -87,4 +87,129 @@ export async function authorizedFetch(input: string, init: RequestInit = {}): Pr
   return res;
 }
 
+export async function getUserEssenceBalance(): Promise<{
+  balance: string;
+  balanceFormatted: number;
+  tokenStats: {
+    totalSupply: string;
+    maxSupply: string;
+    remainingSupply: string;
+    rewardAmount: string;
+  };
+}> {
+  const res = await authorizedFetch('/users/me/essence-balance');
+  if (!res.ok) throw new Error('No se pudo obtener balance de esencia');
+  return res.json();
+}
+
+export async function getUserStats(): Promise<{
+  user: {
+    address: string;
+    totalHeroes: number;
+    totalPower: number;
+    averageLevel: number;
+    maxLevel: number;
+    heroesByLevel: Record<number, number>;
+  };
+  essence: {
+    balance: string;
+    balanceFormatted: number;
+  };
+  staking: {
+    stakedTokens: string[];
+    pendingRewards: string;
+    pendingRewardsFormatted: number;
+    totalRewards: string;
+    lastClaimTime: number;
+    stakedCount: number;
+  } | null;
+  marketplace: {
+    activeListings: number;
+    totalListed: number;
+  } | null;
+  summary: {
+    totalAssets: number;
+    totalValue: number;
+    isActive: boolean;
+  };
+}> {
+  const res = await authorizedFetch('/users/me/stats');
+  if (!res.ok) throw new Error('No se pudo obtener estadísticas del usuario');
+  return res.json();
+}
+
+export async function getUserActivity(params?: {
+  page?: number;
+  limit?: number;
+  type?: string;
+  from?: string;
+  to?: string;
+}): Promise<{
+  activities: Array<{
+    id: string;
+    type: string;
+    summary: string;
+    details?: string;
+    timestamp: number;
+    txHash?: string;
+    tokenId?: string;
+    status: string;
+    metadata?: Record<string, any>;
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+  stats: {
+    total: number;
+    byType: Record<string, number>;
+    byStatus: Record<string, number>;
+    recentActivity: any[];
+  };
+}> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set('page', params.page.toString());
+  if (params?.limit) searchParams.set('limit', params.limit.toString());
+  if (params?.type) searchParams.set('type', params.type);
+  if (params?.from) searchParams.set('from', params.from);
+  if (params?.to) searchParams.set('to', params.to);
+
+  const url = `/users/me/activity${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+  const res = await authorizedFetch(url);
+  if (!res.ok) throw new Error('No se pudo obtener historial de actividad');
+  return res.json();
+}
+
+export async function getHeroMetadata(tokenId: string): Promise<{
+  tokenId: string;
+  name: string;
+  description: string;
+  image: string;
+  level: number;
+  evolutionStage: number;
+  class: string;
+  power: number;
+  owner: string;
+  isStaked: boolean;
+  isListed: boolean;
+  listingPrice: {
+    wei: string;
+    core: number;
+  } | null;
+  attributes: any[];
+  externalUrl?: string;
+  animationUrl?: string;
+  background?: string;
+  createdAt?: string;
+  updatedAt: string;
+}> {
+  const res = await authorizedFetch(`/heroes/${tokenId}/metadata`);
+  if (!res.ok) throw new Error('No se pudo obtener metadata del héroe');
+  return res.json();
+}
+
 

@@ -2,40 +2,91 @@ import React from 'react';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  variant?: 'default' | 'primary' | 'white';
+  color?: 'primary' | 'white' | 'gray';
   className?: string;
-  text?: string;
 }
 
-const sizeClasses = {
-  sm: 'h-4 w-4',
-  md: 'h-6 w-6',
-  lg: 'h-8 w-8',
-  xl: 'h-12 w-12'
+const sizes = {
+  sm: 'w-4 h-4',
+  md: 'w-6 h-6',
+  lg: 'w-8 h-8',
+  xl: 'w-12 h-12'
 };
 
-const variantClasses = {
-  default: 'border-gray-300 border-t-gray-600',
-  primary: 'border-primary/30 border-t-primary',
-  white: 'border-white/30 border-t-white'
+const colors = {
+  primary: 'border-primary',
+  white: 'border-white',
+  gray: 'border-gray-400'
 };
 
 export default function LoadingSpinner({ 
   size = 'md', 
-  variant = 'default', 
-  className = '',
-  text
+  color = 'primary',
+  className = '' 
 }: LoadingSpinnerProps) {
   return (
-    <div className={`flex flex-col items-center justify-center gap-2 ${className}`}>
-      <div
-        className={`${sizeClasses[size]} ${variantClasses[variant]} border-2 rounded-full animate-spin`}
-        role="status"
-        aria-label="Cargando"
-      />
+    <div 
+      className={`
+        ${sizes[size]} 
+        ${colors[color]} 
+        border-2 
+        border-t-transparent 
+        rounded-full 
+        animate-spin 
+        ${className}
+      `}
+      role="status"
+      aria-label="Cargando"
+    />
+  );
+}
+
+// Spinner con texto
+interface LoadingSpinnerWithTextProps extends LoadingSpinnerProps {
+  text?: string;
+  textClassName?: string;
+}
+
+export function LoadingSpinnerWithText({ 
+  text = 'Cargando...',
+  textClassName = 'text-text-secondary text-sm',
+  ...props 
+}: LoadingSpinnerWithTextProps) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <LoadingSpinner {...props} />
       {text && (
-        <p className="text-sm text-text-secondary animate-pulse">{text}</p>
+        <span className={textClassName}>{text}</span>
       )}
     </div>
+  );
+}
+
+// Spinner inline
+export function LoadingSpinnerInline({ 
+  size = 'sm',
+  className = '' 
+}: Omit<LoadingSpinnerProps, 'size'> & { size?: 'xs' | 'sm' | 'md' }) {
+  const inlineSizes = {
+    xs: 'w-3 h-3',
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5'
+  };
+
+  return (
+    <div 
+      className={`
+        ${inlineSizes[size]} 
+        border-primary 
+        border-2 
+        border-t-transparent 
+        rounded-full 
+        animate-spin 
+        inline-block 
+        ${className}
+      `}
+      role="status"
+      aria-label="Cargando"
+    />
   );
 }

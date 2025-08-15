@@ -6,6 +6,7 @@ import { WagmiProvider, RainbowKitProvider, config } from './lib/wagmi';
 import { coreTestnet2 } from './lib/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastProvider } from './lib/notifications';
+import { pwaManager } from './lib/pwa';
 import App from './App.tsx';
 import './styles/index.css';
 
@@ -21,25 +22,38 @@ function injectRainbowKitStyles() {
   document.head.appendChild(link);
 }
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <HashRouter>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider
-            initialChain={coreTestnet2.id}
-            appInfo={{ disclaimer: ({ Text }) => <Text>Built for Core. Demo Mode disponible.</Text> }}
-            modalSize="compact"
-          >
-            <ToastProvider>
-              {injectRainbowKitStyles()}
-              <App />
-            </ToastProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </HashRouter>
-  </StrictMode>
-);
+// Inicializar PWA
+async function initPWA() {
+  try {
+    await pwaManager.init();
+    console.log('PWA inicializada correctamente');
+  } catch (error) {
+    console.warn('Error inicializando PWA:', error);
+  }
+}
+
+// Inicializar PWA y renderizar app
+initPWA().then(() => {
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <StrictMode>
+      <HashRouter>
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider
+              initialChain={coreTestnet2.id}
+              appInfo={{ disclaimer: ({ Text }) => <Text>Built for Core. Demo Mode disponible.</Text> }}
+              modalSize="compact"
+            >
+              <ToastProvider>
+                {injectRainbowKitStyles()}
+                <App />
+              </ToastProvider>
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </HashRouter>
+    </StrictMode>
+  );
+});
 
 

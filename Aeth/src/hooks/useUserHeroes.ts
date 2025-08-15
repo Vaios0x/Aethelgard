@@ -114,4 +114,60 @@ export function useHeroById(id: bigint) {
   return { hero, isLoading };
 }
 
+// Hook para obtener metadata de un héroe específico
+export function useHeroMetadata(tokenId: string) {
+  const [metadata, setMetadata] = React.useState<any>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!tokenId) {
+      setMetadata(null);
+      return;
+    }
+
+    const fetchMetadata = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const { getHeroMetadata } = await import('../lib/api');
+        const data = await getHeroMetadata(tokenId);
+        setMetadata(data);
+      } catch (e) {
+        setError('Error al obtener metadata del héroe');
+        console.error('Metadata error:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMetadata();
+  }, [tokenId]);
+
+  return {
+    metadata,
+    isLoading,
+    error,
+    refetch: () => {
+      if (tokenId) {
+        const fetchMetadata = async () => {
+          setIsLoading(true);
+          setError(null);
+          try {
+            const { getHeroMetadata } = await import('../lib/api');
+            const data = await getHeroMetadata(tokenId);
+            setMetadata(data);
+          } catch (e) {
+            setError('Error al actualizar metadata');
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchMetadata();
+      }
+    }
+  };
+}
+
 

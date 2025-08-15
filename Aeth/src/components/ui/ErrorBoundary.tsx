@@ -23,8 +23,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return { hasError: true, error };
   }
 
-  override componentDidCatch(error: Error) {
-    console.error('ErrorBoundary caught an error:', error);
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
     
     // Call custom error handler if provided
     if (this.props.onError) {
@@ -35,7 +35,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     if (process.env.NODE_ENV === 'production') {
       console.error('Production error:', {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        componentStack: errorInfo.componentStack
       });
     }
   }
