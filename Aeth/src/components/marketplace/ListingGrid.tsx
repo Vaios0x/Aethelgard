@@ -1,43 +1,134 @@
-import ListingCard from './ListingCard';
-import { useMarketplace } from '../../hooks/useMarketplace';
 import React from 'react';
+import ListingCard from './ListingCard';
+import AdvancedFilters from './AdvancedFilters';
+import MarketplaceControls from './MarketplaceControls';
+import { useMarketplace } from '../../hooks/useMarketplace';
+import Skeleton from '../ui/Skeleton';
+import Card from '../ui/Card';
+import Badge from '../ui/Badge';
 
-export default function ListingGrid({ filter }: { filter: { q?: string; min?: number; max?: number } }) {
-  const { listings, buy, unlist, toggleFavorite, sort } = useMarketplace();
-  const [page, setPage] = React.useState(1);
-  const pageSize = 6;
+export default function ListingGrid() {
+  const {
+    listings,
+    isLoading,
+    error,
+    isUsingMockData,
+    filters,
+    sort,
+    pagination,
+    favorites,
+    total,
+    setFilters,
+    clearFilters,
+    sort: handleSort,
+    setPage,
+    setPageSize,
+    toggleFavorite,
+    buy,
+    unlist
+  } = useMarketplace();
 
-  React.useEffect(() => { setPage(1); }, [filter.q, filter.min, filter.max]);
+  // Contadores para filtros
+  const favoritesCount = favorites.size;
+  const ownListingsCount = listings.filter(item => item.isOwn).length;
 
-  const filtered = listings.filter((l) => {
-    if (filter.q && !(`${l.name} ${String(l.tokenId)}`.toLowerCase().includes(filter.q.toLowerCase()))) return false;
-    if (typeof filter.min === 'number' && l.priceCore < filter.min) return false;
-    if (typeof filter.max === 'number' && l.priceCore > filter.max) return false;
-    return true;
-  });
-  if (!filtered.length) return <div className="text-text-secondary">Sin listados por ahora.</div>;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const start = (page - 1) * pageSize;
-  const pageItems = filtered.slice(start, start + pageSize);
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-2 pb-2">
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('price', 'asc')}>Precio ↑</button>
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('price', 'desc')}>Precio ↓</button>
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('name', 'asc')}>Nombre A-Z</button>
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" onClick={() => sort('name', 'desc')}>Nombre Z-A</button>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {pageItems.map((it) => (
-          <ListingCard key={it.id} item={it} onBuy={buy} onUnlist={unlist} onFav={toggleFavorite} />
-        ))}
-      </div>
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 pt-4">
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Página anterior">Anterior</button>
-        <span className="text-xs sm:text-sm text-text-secondary">Página {page} de {totalPages}</span>
-        <button className="btn-ghost px-2 sm:px-3 py-1 text-xs sm:text-sm" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} aria-label="Página siguiente">Siguiente</button>
-      </div>
-    </>
+    <div className="space-y-6">
+      {/* Indicador de modo demo */}
+      {isUsingMockData && (
+        <Card>
+          <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40">
+              🎮 Modo Demo
+            </Badge>
+            <div className="flex-1">
+              <p className="text-sm text-amber-200">
+                Estás viendo datos de ejemplo. Las transacciones serán simuladas.
+              </p>
+              {error && (
+                <p className="text-xs text-amber-300 mt-1">
+                  {error}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Filtros avanzados */}
+      <AdvancedFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        onClearFilters={clearFilters}
+        favoritesCount={favoritesCount}
+        ownListingsCount={ownListingsCount}
+      />
+
+      {/* Controles de ordenamiento y paginación */}
+      <MarketplaceControls
+        sort={sort}
+        pagination={pagination}
+        onSort={handleSort}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        total={total}
+        isLoading={isLoading}
+      />
+
+      {/* Grid de listados */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: pagination.pageSize }).map((_, i) => (
+            <Skeleton key={i} className="h-80" />
+          ))}
+        </div>
+      ) : listings.length === 0 ? (
+        <Card>
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">🏪</div>
+            <h3 className="heading text-lg mb-2">No hay listados disponibles</h3>
+            <p className="text-text-secondary text-sm">
+              {total === 0 
+                ? 'Aún no hay héroes listados en el marketplace. ¡Sé el primero en listar uno!'
+                : 'No hay listados que coincidan con tus filtros actuales.'
+              }
+            </p>
+            {total > 0 && (
+              <button
+                onClick={clearFilters}
+                className="mt-4 btn-ghost text-sm"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listings.map((item) => (
+            <ListingCard
+              key={item.id}
+              item={item}
+              onBuy={buy}
+              onUnlist={unlist}
+              onFav={toggleFavorite}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Información adicional */}
+      {listings.length > 0 && (
+        <div className="text-center text-sm text-text-secondary">
+          <p>
+            Mostrando {listings.length} de {total} listados
+            {filters.onlyFavorites && ` (${favoritesCount} favoritos)`}
+            {filters.onlyOwn && ` (${ownListingsCount} propios)`}
+            {isUsingMockData && ' (modo demo)'}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -1,36 +1,43 @@
 // @ts-nocheck
-import React from 'react';
 import { useAccount } from 'wagmi';
-import { getContract, type Address, type PublicClient, type WalletClient } from 'viem';
-import { HERO_NFT_ABI, STAKING_ABI, MARKETPLACE_ABI } from '../constants/abis';
-import { CONTRACT_ADDRESSES } from '../constants';
-import { isZeroAddress } from '../lib/utils';
+import { CONTRACTS } from '../constants';
+import { abis } from '../constants/abis';
 
 export function useAethelgardContracts() {
   const { chain } = useAccount();
-  const chainId = chain?.id ?? 1114; // default Core Testnet2
+  
+  // Determinar qué red usar
+  const isMainnet = chain?.id === 1116;
+  const isTestnet2 = chain?.id === 1114;
+  const network = isMainnet ? 'mainnet' : isTestnet2 ? 'testnet2' : 'testnet2'; // Default a testnet2
+  
+  const contracts = CONTRACTS[network];
 
-  const addresses = CONTRACT_ADDRESSES[chainId];
-
-  const heroNft = React.useMemo(() => ({
-    address: addresses?.HERO_NFT as Address,
-    abi: HERO_NFT_ABI,
-    isConfigured: addresses && !isZeroAddress(addresses.HERO_NFT),
-  }), [addresses?.HERO_NFT, addresses]);
-
-  const staking = React.useMemo(() => ({
-    address: addresses?.STAKING as Address,
-    abi: STAKING_ABI,
-    isConfigured: addresses && !isZeroAddress(addresses.STAKING),
-  }), [addresses?.STAKING, addresses]);
-
-  const marketplace = React.useMemo(() => ({
-    address: (addresses?.MARKETPLACE as Address) as Address,
-    abi: MARKETPLACE_ABI,
-    isConfigured: addresses && addresses.MARKETPLACE && !isZeroAddress(addresses.MARKETPLACE!),
-  }), [addresses?.MARKETPLACE, addresses]);
-
-  return { heroNft, staking, marketplace, chainId };
+  return {
+    heroNft: {
+      address: contracts.heroNft as `0x${string}`,
+      abi: abis.HeroNFT,
+      isConfigured: contracts.heroNft !== '0x0000000000000000000000000000000000000000',
+    },
+    staking: {
+      address: contracts.staking as `0x${string}`,
+      abi: abis.Staking,
+      isConfigured: contracts.staking !== '0x0000000000000000000000000000000000000000',
+    },
+    marketplace: {
+      address: contracts.marketplace as `0x${string}`,
+      abi: abis.Marketplace,
+      isConfigured: contracts.marketplace !== '0x0000000000000000000000000000000000000000',
+    },
+    essenceToken: {
+      address: contracts.essenceToken as `0x${string}`,
+      abi: abis.EssenceToken,
+      isConfigured: contracts.essenceToken !== '0x0000000000000000000000000000000000000000',
+    },
+    network,
+    isMainnet,
+    isTestnet2,
+  };
 }
 
 

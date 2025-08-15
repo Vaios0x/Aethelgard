@@ -1,50 +1,59 @@
 // @ts-nocheck
-import React from 'react';
-import FilterBar from '../components/marketplace/FilterBar';
 import ListingGrid from '../components/marketplace/ListingGrid';
-import { useUserHeroes } from '../hooks/useUserHeroes';
 import Card from '../components/ui/Card';
-import Drawer from '../components/ui/Drawer';
 import Button from '../components/ui/Button';
 import { useMarketplace } from '../hooks/useMarketplace';
+import { useAccount } from 'wagmi';
+import { Link } from 'react-router-dom';
 
 export default function MarketplacePage() {
-  const [filter, setFilter] = React.useState<{ q: string; min?: number; max?: number }>({ q: '' });
-  const { heroes } = useUserHeroes();
-  const [open, setOpen] = React.useState(false);
-  const [selectedId, setSelectedId] = React.useState<bigint | null>(null);
-  const [price, setPrice] = React.useState(0.9);
+  const { address } = useAccount();
   const { list } = useMarketplace();
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <h1 className="heading text-2xl sm:text-3xl">Mercado</h1>
-      <FilterBar onFilterChange={setFilter} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="heading text-2xl sm:text-3xl lg:text-4xl">Marketplace</h1>
+          <p className="text-text-secondary text-sm sm:text-base">
+            Compra, vende y descubre héroes únicos en el ecosistema Core
+          </p>
+        </div>
+        
+        {address && (
+          <Link to="/dashboard">
+            <Button variant="primary" className="text-sm">
+              Mis Héroes
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      {/* Estadísticas rápidas */}
       <Card>
-        <h2 className="heading text-xl mb-3 sm:mb-2">Mi inventario (mock)</h2>
-        <div className="flex flex-wrap gap-2">
-          {heroes?.map((h) => (
-            <button key={String(h.id)} className="btn-ghost px-2 sm:px-3 py-1 text-sm" onClick={() => { setSelectedId(h.id); setOpen(true); }}>
-              #{String(h.id)} {h.name}
-            </button>
-          ))}
-          {(!heroes || heroes.length === 0) && (
-            <span className="text-text-secondary text-sm">Sin héroes disponibles.</span>
-          )}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div>
+            <div className="text-2xl font-bold text-primary">🏪</div>
+            <div className="text-sm text-text-secondary">Marketplace</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-primary">⚔️</div>
+            <div className="text-sm text-text-secondary">Héroes NFT</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-primary">💎</div>
+            <div className="text-sm text-text-secondary">Core DAO</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-primary">🔒</div>
+            <div className="text-sm text-text-secondary">Seguro</div>
+          </div>
         </div>
       </Card>
-      <ListingGrid filter={filter} />
-      <Drawer open={open} onClose={() => setOpen(false)} title={`Listar #${selectedId ?? ''}`}>
-        <div className="space-y-3">
-          <p className="text-text-secondary text-sm">Precio (CORE)</p>
-          <input
-            type="number"
-            className="w-full rounded-md bg-surface border border-white/10 px-3 py-2"
-            value={price}
-            onChange={(e) => setPrice(Number((e.target as HTMLInputElement).value))}
-          />
-          <Button onClick={() => { if (selectedId!=null) list({ tokenId: selectedId, name: `Hero #${selectedId}`, priceCore: price, seller: '0xYOU', isOwn: true }); setOpen(false); }} className="w-full">Publicar (mock)</Button>
-        </div>
-      </Drawer>
+
+      {/* Grid principal */}
+      <ListingGrid />
     </div>
   );
 }

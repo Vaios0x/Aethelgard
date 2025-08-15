@@ -11,6 +11,9 @@ import ActivityList from '../components/activity/ActivityList';
 import Button from '../components/ui/Button';
 import { useWriteContract } from 'wagmi';
 import { usePublicClient } from 'wagmi';
+import ListHeroModal from '../components/marketplace/ListHeroModal';
+import { useUserHeroes } from '../hooks/useUserHeroes';
+import type { Hero } from '../types/hero';
 
 export default function DashboardPage() {
   const { address } = useAccount();
@@ -18,6 +21,10 @@ export default function DashboardPage() {
   const { writeContract, isPending } = useWriteContract();
   const publicClient = usePublicClient();
   const [me, setMe] = React.useState<any>(null);
+  const { heroes, isLoading } = useUserHeroes();
+  const [selectedHeroForListing, setSelectedHeroForListing] = React.useState<Hero | null>(null);
+  const [isListModalOpen, setIsListModalOpen] = React.useState(false);
+
   React.useEffect(() => {
     (async () => {
       try {
@@ -27,6 +34,17 @@ export default function DashboardPage() {
       } catch {}
     })();
   }, []);
+
+  const handleListHero = (hero: Hero) => {
+    setSelectedHeroForListing(hero);
+    setIsListModalOpen(true);
+  };
+
+  const handleCloseListModal = () => {
+    setIsListModalOpen(false);
+    setSelectedHeroForListing(null);
+  };
+
   if (!address) {
     return (
       <Card>
@@ -84,6 +102,13 @@ export default function DashboardPage() {
         <h2 className="heading text-2xl mb-3 sm:mb-2">Actividad</h2>
         <ActivityList />
       </div>
+
+      {/* Modal para listar héroe */}
+      <ListHeroModal
+        hero={selectedHeroForListing}
+        isOpen={isListModalOpen}
+        onClose={handleCloseListModal}
+      />
     </div>
   );
 }

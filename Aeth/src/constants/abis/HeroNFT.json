@@ -6,15 +6,15 @@
           "internalType": "string",
           "name": "_baseURI",
           "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_essenceToken",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "ERC721EnumerableForbiddenBatchMint",
-      "type": "error"
     },
     {
       "inputs": [
@@ -138,6 +138,22 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "currentStage",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxStage",
+          "type": "uint256"
+        }
+      ],
+      "name": "MaxStageReached",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "owner",
           "type": "address"
@@ -221,9 +237,52 @@
           "internalType": "uint256",
           "name": "newLevel",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newStage",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "essenceSpent",
+          "type": "uint256"
         }
       ],
-      "name": "Evolved",
+      "name": "HeroEvolved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "rarity",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "class",
+          "type": "uint256"
+        }
+      ],
+      "name": "HeroMinted",
       "type": "event"
     },
     {
@@ -271,16 +330,21 @@
       "type": "event"
     },
     {
-      "inputs": [],
-      "name": "MAX_PER_ADDRESS",
-      "outputs": [
+      "inputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "experienceAmount",
           "type": "uint256"
         }
       ],
-      "stateMutability": "view",
+      "name": "addExperience",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -321,12 +385,23 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "baseURI",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "canEvolve",
       "outputs": [
         {
+          "internalType": "bool",
+          "name": "canEvolve",
+          "type": "bool"
+        },
+        {
           "internalType": "string",
-          "name": "",
+          "name": "reason",
           "type": "string"
         }
       ],
@@ -347,6 +422,57 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "evolutionConfig",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "baseEssenceCost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "levelMultiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stageMultiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxLevel",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxStage",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "evolutionCooldown",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "essenceToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -360,6 +486,214 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEvolutionCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEvolutionCooldownRemaining",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getHeroClass",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getHeroInfo",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "level",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "experience",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "evolutionStage",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "essenceCost",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "power",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rarity",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "class",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastEvolution",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEvolved",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct HeroNFT.HeroStats",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getHeroRarity",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "tokenIds",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "getHeroesInfo",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "level",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "experience",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "evolutionStage",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "essenceCost",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "power",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rarity",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "class",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastEvolution",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEvolved",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct HeroNFT.HeroStats[]",
+          "name": "",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -397,7 +731,66 @@
           "type": "uint256"
         }
       ],
-      "name": "levelOf",
+      "name": "heroStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "level",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "experience",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "evolutionStage",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "essenceCost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "power",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rarity",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "class",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastEvolution",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isEvolved",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "mintedBy",
       "outputs": [
         {
           "internalType": "uint256",
@@ -440,25 +833,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "mintedBy",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "name",
       "outputs": [
@@ -492,6 +866,25 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -558,6 +951,32 @@
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "_baseURIValue",
+          "type": "string"
+        }
+      ],
+      "name": "setBaseURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_essenceToken",
+          "type": "address"
+        }
+      ],
+      "name": "setEssenceToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "operator",
           "type": "address"
@@ -569,19 +988,6 @@
         }
       ],
       "name": "setApprovalForAll",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_baseURIValue",
-          "type": "string"
-        }
-      ],
-      "name": "setBaseURI",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -725,6 +1131,44 @@
         }
       ],
       "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_baseEssenceCost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_levelMultiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_stageMultiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxLevel",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxStage",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_evolutionCooldown",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateEvolutionConfig",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

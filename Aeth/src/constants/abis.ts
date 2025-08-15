@@ -1,13 +1,19 @@
-// ABIs reales importados desde artifacts (reducidos a la propiedad "abi" para el bundle)
-// @ts-expect-error: import de JSON sin tipos específicos
-import HERO_JSON from './abis/HeroNFT.json';
-// @ts-expect-error
-import STAKING_JSON from './abis/Staking.json';
-// @ts-expect-error
-import MARKET_JSON from './abis/Marketplace.json';
+import HeroNFT from './abis/HeroNFT.json';
+import Staking from './abis/Staking.json';
+import Marketplace from './abis/Marketplace.json';
+import EssenceToken from './abis/EssenceToken.json';
 
-export const HERO_NFT_ABI = HERO_JSON.abi as const;
-export const STAKING_ABI = STAKING_JSON.abi as const;
-export const MARKETPLACE_ABI = MARKET_JSON.abi as const;
+export const abis = {
+  HeroNFT: HeroNFT.abi,
+  Staking: Staking.abi,
+  Marketplace: Marketplace.abi,
+  EssenceToken: EssenceToken.abi,
+} as const;
+
+// Exportaciones individuales para compatibilidad
+export const HERO_NFT_ABI = HeroNFT.abi;
+export const STAKING_ABI = Staking.abi;
+export const MARKETPLACE_ABI = Marketplace.abi;
+export const ESSENCE_TOKEN_ABI = EssenceToken.abi;
 
 
