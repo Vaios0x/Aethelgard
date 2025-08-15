@@ -7,7 +7,12 @@ import Skeleton from '../ui/Skeleton';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 
-export default function ListingGrid() {
+interface ListingGridProps {
+  onBuyConfirm?: (id: string, name: string, price: number) => void;
+  onUnlistConfirm?: (id: string, name: string) => void;
+}
+
+export default function ListingGrid({ onBuyConfirm, onUnlistConfirm }: ListingGridProps) {
   const {
     listings,
     isLoading,
@@ -109,8 +114,8 @@ export default function ListingGrid() {
             <ListingCard
               key={item.id}
               item={item}
-              onBuy={buy}
-              onUnlist={unlist}
+              onBuy={onBuyConfirm ? () => onBuyConfirm(item.id, item.name, item.priceCore) : buy}
+              onUnlist={onUnlistConfirm ? () => onUnlistConfirm(item.id, item.name) : unlist}
               onFav={toggleFavorite}
             />
           ))}

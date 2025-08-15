@@ -1,6 +1,9 @@
 import React from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Tooltip from '../ui/Tooltip';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import { FilterTooltip } from './MarketplaceTooltips';
 import type { SortConfig, PaginationConfig } from '../../types/marketplace';
 
 interface MarketplaceControlsProps {
@@ -63,7 +66,9 @@ export default function MarketplaceControls({
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-text-secondary">Por página:</span>
+            <Tooltip content="Cantidad de elementos mostrados por página" side="top">
+              <span className="text-sm text-text-secondary">Por página:</span>
+            </Tooltip>
             <select
               className="bg-surface border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
               value={pagination.pageSize}
@@ -81,16 +86,20 @@ export default function MarketplaceControls({
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-text-secondary">Ordenar por:</span>
           {SORT_OPTIONS.map(option => (
-            <Button
+            <Tooltip
               key={option.field}
-              variant={sort.field === option.field ? 'primary' : 'ghost'}
-              size="sm"
-              onClick={() => handleSort(option.field)}
-              disabled={isLoading}
-              className="text-xs"
+              content={`Ordenar por ${option.label.toLowerCase()} ${sort.field === option.field ? (sort.order === 'asc' ? 'ascendente' : 'descendente') : 'descendente'}`}
+              side="top"
             >
-              {option.label} {getSortIcon(option.field)}
-            </Button>
+              <Button
+                variant={sort.field === option.field ? 'primary' : 'ghost'}
+                onClick={() => handleSort(option.field)}
+                disabled={isLoading}
+                className="text-xs px-2 py-1"
+              >
+                {option.label} {getSortIcon(option.field)}
+              </Button>
+            </Tooltip>
           ))}
         </div>
 
@@ -98,24 +107,28 @@ export default function MarketplaceControls({
         {totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onPageChange(1)}
-                disabled={pagination.page <= 1 || isLoading}
-                aria-label="Primera página"
-              >
-                ⏮️ Primera
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onPageChange(pagination.page - 1)}
-                disabled={pagination.page <= 1 || isLoading}
-                aria-label="Página anterior"
-              >
-                ◀️ Anterior
-              </Button>
+              <Tooltip content="Ir a la primera página" side="top">
+                <Button
+                  variant="ghost"
+                  onClick={() => onPageChange(1)}
+                  disabled={pagination.page <= 1 || isLoading}
+                  aria-label="Primera página"
+                  className="text-xs px-2 py-1"
+                >
+                  ⏮️ Primera
+                </Button>
+              </Tooltip>
+              <Tooltip content="Ir a la página anterior" side="top">
+                <Button
+                  variant="ghost"
+                  onClick={() => onPageChange(pagination.page - 1)}
+                  disabled={pagination.page <= 1 || isLoading}
+                  aria-label="Página anterior"
+                  className="text-xs px-2 py-1"
+                >
+                  ◀️ Anterior
+                </Button>
+              </Tooltip>
             </div>
 
             <div className="flex items-center gap-2">
@@ -137,7 +150,6 @@ export default function MarketplaceControls({
                     <Button
                       key={pageNum}
                       variant={pagination.page === pageNum ? 'primary' : 'ghost'}
-                      size="sm"
                       onClick={() => onPageChange(pageNum)}
                       disabled={isLoading}
                       className="w-8 h-8 p-0 text-xs"
@@ -150,24 +162,28 @@ export default function MarketplaceControls({
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onPageChange(pagination.page + 1)}
-                disabled={pagination.page >= totalPages || isLoading}
-                aria-label="Página siguiente"
-              >
-                Siguiente ▶️
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onPageChange(totalPages)}
-                disabled={pagination.page >= totalPages || isLoading}
-                aria-label="Última página"
-              >
-                Última ⏭️
-              </Button>
+              <Tooltip content="Ir a la página siguiente" side="top">
+                <Button
+                  variant="ghost"
+                  onClick={() => onPageChange(pagination.page + 1)}
+                  disabled={pagination.page >= totalPages || isLoading}
+                  aria-label="Página siguiente"
+                  className="text-xs px-2 py-1"
+                >
+                  Siguiente ▶️
+                </Button>
+              </Tooltip>
+              <Tooltip content="Ir a la última página" side="top">
+                <Button
+                  variant="ghost"
+                  onClick={() => onPageChange(totalPages)}
+                  disabled={pagination.page >= totalPages || isLoading}
+                  aria-label="Última página"
+                  className="text-xs px-2 py-1"
+                >
+                  Última ⏭️
+                </Button>
+              </Tooltip>
             </div>
           </div>
         )}

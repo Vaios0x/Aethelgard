@@ -2,11 +2,15 @@ import React from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import LoadingSpinner from '../ui/LoadingSpinner';
+import ConfirmModal from '../ui/ConfirmModal';
 import { useMarketplace } from '../../hooks/useMarketplace';
-import type { Hero } from '../../types/hero';
+import { useConfirm } from '../../hooks/useConfirm';
+import { ListingTooltip, ApprovalTooltip } from './MarketplaceTooltips';
+import type { HeroData } from '../../types/hero';
 
 interface ListHeroModalProps {
-  hero: Hero | null;
+  hero: HeroData | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -16,6 +20,7 @@ export default function ListHeroModal({ hero, isOpen, onClose }: ListHeroModalPr
   const [price, setPrice] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const { confirm, isOpen: isConfirmOpen, options: confirmOptions, handleConfirm, handleCancel } = useConfirm();
 
   React.useEffect(() => {
     if (hero && isOpen) {
@@ -39,26 +44,35 @@ export default function ListHeroModal({ hero, isOpen, onClose }: ListHeroModalPr
       return;
     }
 
-    setIsLoading(true);
-    setError('');
+    // Mostrar confirmación antes de listar
+    confirm({
+      title: 'Confirmar listado',
+      message: `¿Estás seguro de que quieres listar ${hero.name} por ${priceNum} CORE?`,
+      confirmText: 'Listar',
+      cancelText: 'Cancelar',
+      variant: 'warning'
+    }, async () => {
+      setIsLoading(true);
+      setError('');
 
-    try {
-      await list({
-        tokenId: hero.id,
-        name: hero.name,
-        priceCore: priceNum,
-        seller: hero.owner || '',
-        isOwn: true,
-        level: hero.level,
-        class: hero.class,
-        power: hero.power
-      });
-      onClose();
-    } catch (err) {
-      setError('Error al listar el héroe');
-    } finally {
-      setIsLoading(false);
-    }
+      try {
+        await list({
+          tokenId: hero.id,
+          name: hero.name,
+          priceCore: priceNum,
+          seller: '', // El seller se obtiene de la wallet conectada
+          isOwn: true,
+          level: hero.level,
+          class: hero.class,
+          power: hero.power
+        });
+        onClose();
+      } catch (err) {
+        setError('Error al listar el héroe');
+      } finally {
+        setIsLoading(false);
+      }
+    });
   };
 
   if (!isOpen || !hero) return null;
@@ -163,6 +177,19 @@ export default function ListHeroModal({ hero, isOpen, onClose }: ListHeroModalPr
           </div>
         </div>
       </Card>
+
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title || 'Confirmar'}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText || 'Confirmar'}
+        cancelText={confirmOptions.cancelText || 'Cancelar'}
+        variant={confirmOptions.variant || 'danger'}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

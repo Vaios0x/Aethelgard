@@ -1,7 +1,9 @@
 // @ts-nocheck
+import React from 'react';
 import ListingGrid from '../components/marketplace/ListingGrid';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
 import { useMarketplace } from '../hooks/useMarketplace';
 import { useAccount } from 'wagmi';
 import { Link } from 'react-router-dom';
@@ -9,6 +11,47 @@ import { Link } from 'react-router-dom';
 export default function MarketplacePage() {
   const { address } = useAccount();
   const { list } = useMarketplace();
+  const [confirmation, setConfirmation] = React.useState<{
+    isOpen: boolean;
+    action: 'buy' | 'unlist';
+    itemId: string;
+    itemName: string;
+    price?: number;
+  }>({
+    isOpen: false,
+    action: 'buy',
+    itemId: '',
+    itemName: ''
+  });
+
+  const handleBuy = (id: string, name: string, price: number) => {
+    setConfirmation({
+      isOpen: true,
+      action: 'buy',
+      itemId: id,
+      itemName: name,
+      price
+    });
+  };
+
+  const handleUnlist = (id: string, name: string) => {
+    setConfirmation({
+      isOpen: true,
+      action: 'unlist',
+      itemId: id,
+      itemName: name
+    });
+  };
+
+  const handleConfirm = async () => {
+    if (confirmation.action === 'buy') {
+      // La lógica de compra se maneja en ListingGrid
+      setConfirmation(prev => ({ ...prev, isOpen: false }));
+    } else if (confirmation.action === 'unlist') {
+      // La lógica de unlist se maneja en ListingGrid
+      setConfirmation(prev => ({ ...prev, isOpen: false }));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -53,7 +96,34 @@ export default function MarketplacePage() {
       </Card>
 
       {/* Grid principal */}
-      <ListingGrid />
+      <ListingGrid 
+        onBuyConfirm={handleBuy}
+        onUnlistConfirm={handleUnlist}
+      />
+
+      {/* Modal de confirmación */}
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        onClose={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirm}
+        title={
+          confirmation.action === 'buy' 
+            ? 'Confirmar compra' 
+            : 'Confirmar cancelación de listado'
+        }
+        message={
+          confirmation.action === 'buy'
+            ? `¿Estás seguro de que quieres comprar "${confirmation.itemName}" por ${confirmation.price} CORE?`
+            : `¿Estás seguro de que quieres cancelar el listado de "${confirmation.itemName}"?`
+        }
+        confirmText={confirmation.action === 'buy' ? 'Comprar' : 'Cancelar listado'}
+        variant={confirmation.action === 'buy' ? 'info' : 'warning'}
+        details={
+          confirmation.action === 'buy'
+            ? 'Esta acción transferirá el héroe a tu wallet y descontará el precio de tu balance de CORE.'
+            : 'El héroe será devuelto a tu wallet y el listado será removido del marketplace.'
+        }
+      />
     </div>
   );
 }

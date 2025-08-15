@@ -144,42 +144,62 @@ export function useMarketplace() {
         return;
       }
 
-      // Intentar cargar desde el backend
-      const res = await authorizedFetch('/market/listings');
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
-      
-      const json = await res.json();
-      const items: ListingItem[] = (json.listings || []).map((l: any) => ({
-        id: l.id,
-        tokenId: BigInt(l.tokenId),
-        name: `Hero #${l.tokenId}`,
-        priceCore: Number(l.priceCore),
-        seller: l.seller,
-        isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
-        createdAt: l.createdAt || Date.now(),
-        level: l.level || 1,
-        class: l.class || 'Warrior',
-        power: l.power || 0,
-        image: l.image || undefined
-      }));
+      // Intentar cargar desde el backend con timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
 
-      setRawListings(items);
-      setIsUsingMockData(false);
+      try {
+        const res = await authorizedFetch('/market/listings', {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
+        const json = await res.json();
+        const items: ListingItem[] = (json.listings || []).map((l: any) => ({
+          id: l.id,
+          tokenId: BigInt(l.tokenId),
+          name: `Hero #${l.tokenId}`,
+          priceCore: Number(l.priceCore),
+          seller: l.seller,
+          isOwn: address ? l.seller?.toLowerCase() === address.toLowerCase() : false,
+          createdAt: l.createdAt || Date.now(),
+          level: l.level || 1,
+          class: l.class || 'Warrior',
+          power: l.power || 0,
+          image: l.image || undefined
+        }));
+
+        setRawListings(items);
+        setIsUsingMockData(false);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
+      }
     } catch (error) {
       console.error('Error loading listings:', error);
       
-      // Si hay error, usar datos de ejemplo
-      if (error instanceof Error && error.message.includes('backend-offline')) {
-        setError('Backend no disponible. Mostrando datos de ejemplo.');
-        setRawListings(MOCK_LISTINGS);
-        setIsUsingMockData(true);
-      } else {
-        setError('Error al cargar listados. Mostrando datos de ejemplo.');
-        setRawListings(MOCK_LISTINGS);
-        setIsUsingMockData(true);
+      // Determinar el tipo de error y mostrar mensaje apropiado
+      let errorMessage = 'Error al cargar listados. Mostrando datos de ejemplo.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Timeout al conectar con el servidor. Mostrando datos de ejemplo.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Error del servidor (500). Mostrando datos de ejemplo.';
+        } else if (error.message.includes('404')) {
+          errorMessage = 'Endpoint no encontrado. Mostrando datos de ejemplo.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Error de conexión. Mostrando datos de ejemplo.';
+        }
       }
+      
+      setError(errorMessage);
+      setRawListings(MOCK_LISTINGS);
+      setIsUsingMockData(true);
     } finally {
       setIsLoading(false);
     }

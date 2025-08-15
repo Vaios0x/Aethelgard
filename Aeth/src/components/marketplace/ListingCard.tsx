@@ -1,6 +1,8 @@
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
+import Tooltip from '../ui/Tooltip';
+import { PriceTooltip, BuyTooltip, FavoriteTooltip } from './MarketplaceTooltips';
 import type { ListingItem } from '../../types/marketplace';
 
 interface ListingCardProps {
@@ -58,17 +60,19 @@ export default function ListingCard({ item, onBuy, onUnlist, onFav }: ListingCar
 
         {/* Botón de favorito */}
         {onFav && (
-          <button
-            className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${
-              item.favorite 
-                ? 'bg-primary text-black' 
-                : 'bg-black/50 text-white hover:bg-black/70'
-            }`}
-            onClick={() => onFav(item.id)}
-            aria-label={item.favorite ? 'Remover de favoritos' : 'Añadir a favoritos'}
-          >
-            {item.favorite ? '★' : '☆'}
-          </button>
+          <FavoriteTooltip>
+            <button
+              className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors ${
+                item.favorite 
+                  ? 'bg-primary text-black' 
+                  : 'bg-black/50 text-white hover:bg-black/70'
+              }`}
+              onClick={() => onFav(item.id)}
+              aria-label={item.favorite ? 'Remover de favoritos' : 'Añadir a favoritos'}
+            >
+              {item.favorite ? '★' : '☆'}
+            </button>
+          </FavoriteTooltip>
         )}
 
         {/* Indicador de propio */}
@@ -93,14 +97,16 @@ export default function ListingCard({ item, onBuy, onUnlist, onFav }: ListingCar
               ID: #{String(item.tokenId)}
             </p>
           </div>
-          <div className="text-right">
-            <div className="text-lg sm:text-xl font-bold text-primary">
-              {item.priceCore.toFixed(2)} CORE
+          <PriceTooltip>
+            <div className="text-right cursor-help">
+              <div className="text-lg sm:text-xl font-bold text-primary">
+                {item.priceCore.toFixed(2)} CORE
+              </div>
+              <div className="text-xs text-text-secondary">
+                ≈ ${(item.priceCore * 0.5).toFixed(2)} USD
+              </div>
             </div>
-            <div className="text-xs text-text-secondary">
-              ≈ ${(item.priceCore * 0.5).toFixed(2)} USD
-            </div>
-          </div>
+          </PriceTooltip>
         </div>
 
         {/* Estadísticas del héroe */}
@@ -116,9 +122,11 @@ export default function ListingCard({ item, onBuy, onUnlist, onFav }: ListingCar
         </div>
 
         {/* Información del vendedor */}
-        <div className="text-xs text-text-secondary">
-          Vendedor: {item.seller.slice(0, 6)}...{item.seller.slice(-4)}
-        </div>
+        <Tooltip content={`Vendedor: ${item.seller}`} side="top">
+          <div className="text-xs text-text-secondary cursor-help">
+            Vendedor: {item.seller.slice(0, 6)}...{item.seller.slice(-4)}
+          </div>
+        </Tooltip>
 
         {/* Botones de acción */}
         <div className="flex items-center gap-2">
@@ -131,12 +139,14 @@ export default function ListingCard({ item, onBuy, onUnlist, onFav }: ListingCar
               Cancelar listado
             </Button>
           ) : (
-            <Button 
-              onClick={() => onBuy(item.id)} 
-              className="flex-1 text-sm"
-            >
-              Comprar por {item.priceCore.toFixed(2)} CORE
-            </Button>
+            <BuyTooltip>
+              <Button 
+                onClick={() => onBuy(item.id)} 
+                className="flex-1 text-sm"
+              >
+                Comprar por {item.priceCore.toFixed(2)} CORE
+              </Button>
+            </BuyTooltip>
           )}
         </div>
       </div>
