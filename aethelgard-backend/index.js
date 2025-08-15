@@ -3,9 +3,13 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { SiweMessage } from 'siwe';
 import jwt from 'jsonwebtoken';
-import rateLimit from 'express-rate-limit';
 import { ethers } from 'ethers';
 import * as Sentry from '@sentry/node';
+
+// Importar sistema de seguridad
+const { securityManager } = require('./src/security/securityManager');
+const { SecurityController } = require('./src/security/securityController');
+const { authMiddleware } = require('./src/security/authMiddleware');
 
 // Logger mínimo
 const LOG_LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
@@ -19,22 +23,37 @@ function log(level, ...args) {
 }
 
 const app = express();
+
+// Configuración de Sentry
 if (process.env.SENTRY_DSN) {
   Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1.0 });
   app.use(Sentry.Handlers.requestHandler());
 }
+
+// Configuración de CORS
 const CORS_ORIGINS = (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
 const corsOptions = CORS_ORIGINS.length ? { origin: CORS_ORIGINS, credentials: false } : { origin: true, credentials: false };
 app.use(cors(corsOptions));
-// Preflight universal
 app.options('*', cors(corsOptions));
-app.use(bodyParser.json());
-app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
-// Logging de requests básico
+
+// Middleware de parsing
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
+// Middleware de seguridad - Aplicar a todas las rutas
+app.use(securityManager.blacklistMiddleware);
+app.use(securityManager.auditMiddleware);
+app.use(authMiddleware.sanitizeInput);
+
+// Rate limiting global usando el sistema de seguridad
+app.use(securityManager.getRateLimiter('global'));
+
+// Logging de requests mejorado
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
-    log('info', `${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`);
+    const duration = Date.now() - start;
+    log('info', `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms - ${req.ip}`);
   });
   next();
 });
@@ -64,29 +83,90 @@ function genNonce() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+// Rate limiting específico para autenticación
+app.use('/auth/*', securityManager.getRateLimiter('auth'));
+
 app.get('/auth/nonce/:address', (req, res) => {
   const { address } = req.params;
-  if (!address) return res.status(400).json({ error: 'address requerido' });
+  if (!address) {
+    securityManager.logAudit('warn', req, res, { type: 'missing_address_param' });
+    return res.status(400).json({ error: 'address requerido' });
+  }
+  
+  // Verificar si la dirección está en blacklist
+  if (securityManager.isBlacklisted('address', address)) {
+    securityManager.logAudit('warn', req, res, { 
+      type: 'blacklisted_address_nonce_request',
+      address 
+    });
+    return res.status(403).json({ error: 'Dirección bloqueada' });
+  }
+  
   const nonce = genNonce();
   NONCES.set(address.toLowerCase(), { nonce, exp: Date.now() + 5 * 60_000 }); // 5 minutos
+  
+  securityManager.logAudit('info', req, res, { 
+    type: 'nonce_generated',
+    address 
+  });
+  
   res.json({ nonce, ttlMs: 5 * 60_000 });
 });
 
 app.post('/auth/login', async (req, res) => {
   try {
     const { message, signature } = req.body;
-    if (!message || !signature) return res.status(400).json({ error: 'faltan campos' });
+    if (!message || !signature) {
+      securityManager.logAudit('warn', req, res, { type: 'missing_login_fields' });
+      return res.status(400).json({ error: 'faltan campos' });
+    }
+    
     const siwe = new SiweMessage(message);
     const fields = await siwe.verify({ signature });
     const addr = fields.data.address.toLowerCase();
+    
+    // Verificar si la dirección está en blacklist
+    if (securityManager.isBlacklisted('address', addr)) {
+      securityManager.logAudit('warn', req, res, { 
+        type: 'blacklisted_address_login_attempt',
+        address: addr 
+      });
+      return res.status(403).json({ error: 'Dirección bloqueada' });
+    }
+    
     const rec = NONCES.get(addr);
-    if (!rec || rec.nonce !== fields.data.nonce) return res.status(400).json({ error: 'nonce inválido' });
-    if (rec.exp < Date.now()) return res.status(400).json({ error: 'nonce expirado' });
+    if (!rec || rec.nonce !== fields.data.nonce) {
+      securityManager.logAudit('warn', req, res, { 
+        type: 'invalid_nonce',
+        address: addr 
+      });
+      return res.status(400).json({ error: 'nonce inválido' });
+    }
+    
+    if (rec.exp < Date.now()) {
+      securityManager.logAudit('warn', req, res, { 
+        type: 'expired_nonce',
+        address: addr 
+      });
+      return res.status(400).json({ error: 'nonce expirado' });
+    }
+    
     NONCES.delete(addr); // evitar replay
-    const accessToken = jwt.sign({ sub: addr, typ: 'access' }, JWT_SECRET, { expiresIn: ACCESS_TTL });
-    const refreshToken = jwt.sign({ sub: addr, typ: 'refresh' }, JWT_SECRET, { expiresIn: REFRESH_TTL_SEC });
+    
+    // Generar tokens usando el middleware de autenticación
+    const { accessToken, refreshToken } = authMiddleware.generateTokens(addr);
+    
+    securityManager.logAudit('info', req, res, { 
+      type: 'successful_login',
+      address: addr 
+    });
+    
     res.json({ accessToken, refreshToken, walletAddress: addr, expiresIn: ACCESS_TTL });
   } catch (e) {
+    securityManager.logAudit('error', req, res, { 
+      type: 'siwe_verification_failed',
+      error: e.message 
+    });
     res.status(400).json({ error: 'verificación SIWE falló' });
   }
 });
@@ -110,18 +190,9 @@ app.post('/auth/refresh', (req, res) => {
   }
 });
 
-// Middleware simple de auth
+// Middleware de autenticación mejorado
 function auth(req, res, next) {
-  const authz = req.headers.authorization || '';
-  const token = authz.startsWith('Bearer ') ? authz.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'no token' });
-  try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = { address: payload.sub };
-    next();
-  } catch {
-    return res.status(401).json({ error: 'token inválido' });
-  }
+  return authMiddleware.authenticate(req, res, next);
 }
 
 // Función mejorada para fetch de metadata con caché
@@ -798,6 +869,9 @@ app.get('/market/listings', async (req, res) => {
   }
 });
 
+// Inicializar controlador de seguridad
+const securityController = new SecurityController();
+
 // Endpoints de gestión de caché
 app.get('/cache/stats', (req, res) => cacheController.getCacheStats(req, res));
 app.post('/cache/clear', (req, res) => cacheController.clearAllCache(req, res));
@@ -809,6 +883,23 @@ app.post('/cache/events/stop', (req, res) => cacheController.stopEventProcessing
 app.post('/cache/events/process', (req, res) => cacheController.processEventsManually(req, res));
 app.post('/cache/prewarm', (req, res) => cacheController.prewarmCache(req, res));
 app.get('/cache/health', (req, res) => cacheController.getCacheHealth(req, res));
+
+// Endpoints de seguridad - Requieren autenticación de admin
+app.get('/security/blacklist', auth, (req, res) => securityController.getBlacklist(req, res));
+app.post('/security/blacklist', auth, (req, res) => securityController.addToBlacklist(req, res));
+app.delete('/security/blacklist/:type/:value', auth, (req, res) => securityController.removeFromBlacklist(req, res));
+app.get('/security/blacklist/check', auth, (req, res) => securityController.checkBlacklist(req, res));
+
+// Endpoints de auditoría
+app.get('/security/audit/logs', auth, (req, res) => securityController.getAuditLogs(req, res));
+app.get('/security/audit/stats', auth, (req, res) => securityController.getAuditStats(req, res));
+app.get('/security/audit/export', auth, (req, res) => securityController.exportAuditLogs(req, res));
+
+// Endpoints de configuración y monitoreo
+app.get('/security/config', auth, (req, res) => securityController.getSecurityConfig(req, res));
+app.get('/security/health', auth, (req, res) => securityController.getSecurityHealth(req, res));
+app.post('/security/cleanup', auth, (req, res) => securityController.cleanupExpiredEntries(req, res));
+app.get('/security/blacklist/export', auth, (req, res) => securityController.exportBlacklist(req, res));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => log('info', `Backend listo en :${PORT}`));
